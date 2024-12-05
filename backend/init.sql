@@ -4,6 +4,6 @@ CREATE TABLE greetings (
 );
 
 INSERT INTO greetings (message) VALUES
-('Hello, World!'),
+('Hello World, DB!'),
 ('Welcome to my API!');
 

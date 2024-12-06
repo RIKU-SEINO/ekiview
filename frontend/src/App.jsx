@@ -30,7 +30,8 @@ const App = () => {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/contributer" element={<Contributer />} />
         <Route path="/"
-          <div>
+          element={
+            <div>
             <h1>Hello World, Frontend!</h1>
 
             {/* データがある場合に表示 */}
@@ -50,7 +51,8 @@ const App = () => {
               </div>
             )}
           </div>
-        </Route>
+          }
+        />
       </Routes>
     </Router>
   )

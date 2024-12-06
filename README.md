@@ -1,5 +1,4 @@
 # 環境構築手順
-
 ## 1. プロジェクトのリポジトリをクローン
 1. プロジェクトのリポジトリをクローン
 ```bash
@@ -49,7 +48,7 @@ npm install
 ```
 
 ### 4-2. フロントエンドで必要なパッケージのインストール
-1. ルートディンレクトリに戻り、frontendフォルダに移動
+1. ルートディレクトリに戻り、frontendフォルダに移動
 ```bash
 cd ../frontend
 ```
@@ -60,11 +59,15 @@ npm install
 
 ## 5. Dockerコンテナの起動
 ここのステップでは、2.でインストールしたDocker Desktopを立ち上げておく必要があります
-1. Dockerイメージのビルド
+1. ルートディレクトリに戻る
+```bash
+cd ..
+```
+2. Dockerイメージのビルド
 ```bash
 docker compose build --no-cache
 ```
-2. Dockerコンテナの立ち上げ
+3. Dockerコンテナの立ち上げ
 ```bash
 docker compose up -d
 ```
@@ -79,6 +82,17 @@ docker compose up -d
 下記2つのURLにアクセスできるかを確認してください。もしアクセスできない場合は連絡お願いします
 - http://localhost:5000/
 - http://localhost:3000/
+
+## 7. Dockerコンテナの停止
+```bash
+docker compose stop
+```
+# もう一度開発に取り組む場合
+1. Docker Desktopを開く
+2. Dockerコンテナを立ち上げる
+```bash
+docker compose up -d
+```
 
 # エラーに遭遇した時の対処
 - 「5. Dockerコンテナの起動」で、`error getting credentials - err: exec: "docker-credential-desktop": executable file not found in $PATH, out: `というエラーが出た時

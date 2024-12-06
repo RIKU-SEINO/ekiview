@@ -1,23 +1,22 @@
 const { Pool } = require('pg');
+require('dotenv').config({ path: '../.env' });
 
-// PostgreSQL接続設定
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT
+  port: process.env.DB_PORT,
 });
 
-// クエリを実行する関数
-const query = async (text, params) => {
-  const client = await pool.connect();
+const testConnection = async (req, res) => {
   try {
-    const res = await client.query(text, params);
-    return res;
-  } finally {
+    const client = await pool.connect();
+    res.json({ message: 'Database connection successful' });
     client.release();
+  } catch (err) {
+    res.status(500).json({ error: 'Database connection failed', details: err.message });
   }
 };
 
-module.exports = { query };
+module.exports = { testConnection };

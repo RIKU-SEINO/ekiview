@@ -13,5 +13,5 @@ RUN npm install
 # ソースコードをコピー
 COPY . .
 
-# Vite の開発サーバーをポート3000で起動
+# Vite の開発サーバーを起動
 CMD ["npm", "run", "dev"]

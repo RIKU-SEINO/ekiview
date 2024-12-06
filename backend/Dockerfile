@@ -13,5 +13,5 @@ RUN npm install
 # ソースコードをコピー
 COPY . .
 
-# サーバーをポート5000で起動
+# サーバーを起動
 CMD ["npm", "run", "dev"]

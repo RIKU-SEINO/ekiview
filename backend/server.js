@@ -17,6 +17,10 @@ app.get('/', (req, res) => {
 });
 
 // サーバーをポート5000で開始
-app.listen(5000, () => {
-  console.log('Server is running on port 5000');
+// ポート番号を環境変数から取得する
+// ポート番号は、ルートディレクトリの.env ファイルに記述してある
+const PORT = process.env.BACKEND_PORT;
+app.listen(PORT, () => {
+  console.log(`Server is running at http://localhost:${PORT}`);
 });
+

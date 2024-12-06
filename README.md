@@ -83,7 +83,7 @@ docker compose up -d
 # エラーに遭遇した時の対処
 - 「5. Dockerコンテナの起動」で、`error getting credentials - err: exec: "docker-credential-desktop": executable file not found in $PATH, out: `というエラーが出た時
 
-  - [Windows への Node.js（npm）のインストール - Qiita](https://qiita.com/gahoh/items/8444da99a1f93b6493b4)
+  - [WSL2でDocker buildをすると止まる問題("docker-credential-desktop.exe": executable file not found in $PATH, out: ``) - Qiita](https://qiita.com/rasuk/items/a36b29b8c79d02fc551a)
 
 - それ以外のエラー
   - Docker DesktopのContainersで作成されているコンテナをクリックすると、一つだけContainersがあるので、それをクリックし、止まっているコンテナのログを送って欲しいです。

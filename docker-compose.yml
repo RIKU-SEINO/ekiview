@@ -1,34 +1,34 @@
 services:
   backend:
     build: ./backend
+    environment:
+      PG_HOST: ${PG_HOST}
+      PG_PORT: ${PG_PORT}
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+      PG_DB: ${PG_DB}
     volumes:
       - ./backend:/app
       - /app/node_modules
     ports:
-      - ${BACKEND_PORT}:${BACKEND_PORT}
-    env_file:
-      - .env
+      - ${VITE_API_PORT}:${VITE_API_PORT}
     depends_on:
       - db
 
   db:
-    image: postgres:13
-    env_file:
-      - .env
+    image: postgres:${PG_VERSION}
+    restart: always
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_DB: ${PG_DB}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
     ports:
-      - ${DB_PORT}:${DB_PORT}
+      - ${PG_PORT}:${PG_PORT}
 
   frontend:
     build: ./frontend
-    env_file:
-      - .env
     ports:
-      - ${FRONTEND_PORT}:${FRONTEND_PORT}
+      - ${VITE_PORT}:${VITE_PORT}
     volumes:
       - ./frontend:/app
       - /app/node_modules
-

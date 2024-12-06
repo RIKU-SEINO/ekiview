@@ -4,7 +4,7 @@ const Header = ({ title }) => {
   return (
     <div style={styles.header}>
       <h1 style={styles.title}>
-        <a href="/" style={styles.link}>{title}</a>
+        <a href="/home" style={styles.link}>{title}</a>
       </h1>
     </div>
   );

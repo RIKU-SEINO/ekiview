@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const Footer = () => {
   return (
     <div style={styles.footer}>
-      <Link to="/" style={styles.link}>
+      <Link to="/home" style={styles.link}>
         <AiFillHome size={24} />
       </Link>
       <Link to="/settings" style={styles.link}>

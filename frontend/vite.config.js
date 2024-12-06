@@ -1,15 +1,28 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
+import { resolve } from 'path';
 
-export default defineConfig({
-  //port番号を.envファイルから取得
-  server: {
-    host: "0.0.0.0",
-    port: process.env.FRONTEND_PORT,
-    watch: {
-      usePolling: true
+export default ({ mode }) => {
+  const env = loadEnv(mode, resolve(__dirname, '..'));
+
+  return defineConfig({
+    server: {
+      port: env.VITE_PORT,
+      watch: {
+        usePolling: true
+      },
+      proxy: {
+        '/api/greeting': {
+          target: `${env.VITE_HOST}:${env.VITE_API_PORT}`,
+          changeOrigin: true,
+          secure: false,
+        },
+      }
     },
-  },
-  plugins: [react()]
-});
+    plugins: [react()],
+    define: {
+      'process.env': env
+    }
+  });
+}
 

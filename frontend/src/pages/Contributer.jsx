@@ -19,7 +19,7 @@ const Contributer = () => {
               Riku Seino (<a href="https://github.com/RIKU-SEINO">GitHub</a>)
             </li>
             <li>
-              Add your name here (add your GitHub link)
+              Minato Miyashita (<a href="https://github.com/miyashita-minato">GitHub</a>)
             </li>
           </ul>
         </div>

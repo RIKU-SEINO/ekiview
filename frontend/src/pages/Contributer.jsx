@@ -19,7 +19,13 @@ const Contributer = () => {
               Riku Seino (<a href="https://github.com/RIKU-SEINO">GitHub</a>)
             </li>
             <li>
+
+            <li>
               Minato Miyashita (<a href="https://github.com/miyashita-minato">GitHub</a>)
+            </li>
+                          
+            <li>
+              Daisuke Ikari (<a href="https://github.com/Daiikari">GitHub</a>)
             </li>
           </ul>
         </div>

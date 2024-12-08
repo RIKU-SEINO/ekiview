@@ -20,6 +20,7 @@ const Contributer = () => {
             </li>
             <li>
               Add your name here (add your GitHub link)
+              Daisuke Ikari (<a href="https://github.com/Daiikari">GitHub</a>)
             </li>
           </ul>
         </div>

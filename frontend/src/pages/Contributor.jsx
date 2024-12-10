@@ -24,6 +24,9 @@ const Contributor = () => {
             <li>
               Daisuke Ikari (<a href="https://github.com/Daiikari">GitHub</a>)
             </li>
+            <li>
+              Ibuki Oono (<a herf="https://github.com/ibuki-oono">GitHub</a>)
+            </li>
           </ul>
         </div>
       </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-const Contributer = () => {
+const Contributor = () => {
   return (
     <div style={styles.page}>
       {/* Header */}
@@ -12,18 +12,15 @@ const Contributer = () => {
       <div style={styles.mainContent}>
         <div style={styles.subContent}>
           <div style={styles.descriptionField}>
-            <h4>Contributer to EkiView</h4>
+            <h4>Contributor to EkiView</h4>
           </div>
           <ul>
             <li>
               Riku Seino (<a href="https://github.com/RIKU-SEINO">GitHub</a>)
             </li>
             <li>
-
-            <li>
               Minato Miyashita (<a href="https://github.com/miyashita-minato">GitHub</a>)
-            </li>
-                          
+            </li>         
             <li>
               Daisuke Ikari (<a href="https://github.com/Daiikari">GitHub</a>)
             </li>
@@ -61,4 +58,4 @@ const styles = {
   },
 };
 
-export default Contributer;
+export default Contributor;

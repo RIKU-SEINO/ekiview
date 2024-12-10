@@ -3,7 +3,7 @@ import axios from './axiosConfig';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import SettingsPage from './pages/SettingsPage';
-import Contributer from './pages/Contributer';
+import Contributor from './pages/Contributor';
 
 const App = () => {
   const [data, setData] = useState(null);
@@ -28,7 +28,7 @@ const App = () => {
       <Routes>
         <Route path="/home" element={<HomePage />} />
         <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/contributer" element={<Contributer />} />
+        <Route path="/contributor" element={<Contributor />} />
         <Route path="/"
           element={
             <div>

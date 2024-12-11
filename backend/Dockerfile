@@ -14,4 +14,4 @@ RUN npm install
 COPY . .
 
 # サーバーを起動
-CMD ["npm", "run", "dev"]
+CMD ["bash", "-c", "npx sequelize-cli db:migrate && npm run dev"]

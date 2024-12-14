@@ -12,7 +12,7 @@ app.use(express.json());
 
 app.use('/api', qrcodeRoutes);
 app.use('/api', placeSearchRoutes);
-app.use('/api/route', routeSearchRoutes);
+app.use('/api/routes', routeSearchRoutes);
 
 app.get('/api/greet', async (req, res) => {
   res.json({ message: 'Hello world, Backend!' });

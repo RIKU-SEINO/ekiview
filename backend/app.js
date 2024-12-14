@@ -12,9 +12,9 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use('/api/', qrcodeRoutes);
-app.use('/api/', placeSearchRoutes);
-app.use('/api/', routeSearchRoutes);
+app.use('/api', qrcodeRoutes);
+app.use('/api', placeSearchRoutes);
+app.use('/api/route', routeSearchRoutes);
 
 app.get('/api/greet', async (req, res) => {
   res.json({ message: 'Hello world, Backend!' });

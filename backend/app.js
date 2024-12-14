@@ -8,10 +8,11 @@ const routeSearchRoutes = require('./routes/routeSearchRoutes');
 const app = express();
 
 app.use(cors());
+app.use(express.json());
 
-app.use('/api/', qrcodeRoutes);
-app.use('/api/', placeSearchRoutes);
-app.use('/api/', routeSearchRoutes);
+app.use('/api', qrcodeRoutes);
+app.use('/api', placeSearchRoutes);
+app.use('/api/route', routeSearchRoutes);
 
 app.get('/api/greet', async (req, res) => {
   res.json({ message: 'Hello world, Backend!' });

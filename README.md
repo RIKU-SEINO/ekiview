@@ -2,13 +2,20 @@
 ## 1. プロジェクトのリポジトリをクローン
 1. プロジェクトのリポジトリをクローン
 ```bash
-$ git clone https://github.com/RIKU-SEINO/ekiview.git
+git clone https://github.com/RIKU-SEINO/ekiview.git
 ```
 2. プロジェクトのディレクトリに移動
 
 ```bash
-$ cd ekiview
+cd ekiview
 ```
+
+3. .env.sampleを.envとしてコピーし、作成された.envのGOOGLE_MAPS_API_KEYのxxxを書き換える
+
+```bash
+cp .env.sample .env
+```
+この後に.envのGOOGLE_MAPS_API_KEYのxxxを書き換える（APIキーはSlackの12/12 02:31の情野のスレッドに書いています）
 
 ## 2. Docker / Docker Composeの環境構築
 

@@ -30,6 +30,9 @@ const Contributor = () => {
             <li>
               Masaharu Otomo (<a href="https://github.com/MasaOtomo">GitHub</a>)
             </li>
+            <li>
+              Su Ruotong (<a href="https://github.com/suruotong">GitHub</a>)
+            </li>
           </ul>
         </div>
       </div>

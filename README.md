@@ -65,7 +65,7 @@ cd ..
 ```
 2. Dockerイメージのビルド
 ```bash
-docker compose build --no-cache
+docker compose build
 ```
 3. Dockerコンテナの立ち上げ
 ```bash
@@ -92,6 +92,26 @@ docker compose stop
 2. Dockerコンテナを立ち上げる
 ```bash
 docker compose up -d
+```
+
+# コンテナの最新化
+1. Docker Desktopを開く
+2. Dockerイメージを再ビルド
+```bash
+docker compose build --no-cache
+```
+3. Dockerコンテナを再作成
+```bash
+docker compose up -d
+```
+# seedデータの投入
+1. backendディレクトリに移動
+```bash
+cd backend
+```
+2. seedデータの投入
+```bash
+docker compose exec backend npx sequelize-cli db:seed:all
 ```
 
 # エラーに遭遇した時の対処

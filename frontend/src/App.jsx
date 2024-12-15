@@ -13,7 +13,7 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/api/greet');
+        const response = await axios.get('/api/qrcodes');
         setData(response.data);
       } catch (err) {
         setError(err.message);

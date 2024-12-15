@@ -18,10 +18,13 @@ services:
   db:
     image: postgres:${PG_VERSION}
     restart: always
+    volumes:
+      - db-store:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${PG_DB}
       POSTGRES_USER: ${PG_USER}
       POSTGRES_PASSWORD: ${PG_PASSWORD}
+      TZ: ${TZ}
     ports:
       - ${PG_PORT}:${PG_PORT}
 
@@ -32,3 +35,6 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+
+volumes:
+  db-store:

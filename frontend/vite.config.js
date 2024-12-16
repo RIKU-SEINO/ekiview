@@ -6,23 +6,23 @@ export default ({ mode }) => {
 
   return defineConfig({
     server: {
-      host: env.VITE_HOST,
-      port: env.VITE_PORT,
-      watch: {
-        usePolling: true
+      host: '0.0.0.0',
+      port: 3001,
+      hmr: {
+        host: 'localhost',
+        clientPort: '3001'
       },
       proxy: {
-        '/api/greeting': {
-          target: `http://${env.VITE_HOST}:${env.VITE_API_PORT}`,
+        '/api': {
+          target: 'http://backend',
           changeOrigin: true,
-          secure: false,
-        },
-      }
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        }
+      },
     },
     plugins: [react()],
     define: {
-      'process.env': env
-    }
+      'process.env': env,
+    },
   });
-}
-
+};

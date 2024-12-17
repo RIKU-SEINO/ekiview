@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import useSearch from "../hook/useSearch";
 import Header from "../components/Header";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
@@ -10,6 +12,8 @@ const HomePage = () => {
   const [currentLocation, setCurrentLocation] = useState(""); // 現在地の状態
   const [destination, setDestination] = useState(""); // 目的地の状態
   const [isLocationDisabled, setIsLocationDisabled] = useState(false); // 入力フィールドの無効化状態
+  const [originPanorama, setOriginPanorama] = useState("");
+  const { results, error, search } = useSearch();
 
   const location = useLocation(); // 現在のURL情報を取得
   const navigate = useNavigate(); // useNavigate フックを取得
@@ -29,12 +33,43 @@ const HomePage = () => {
     }
   }, [placeId]);
 
+  useEffect(() => {
+    if (currentLocation && destination) {
+      search(currentLocation, destination);
+    }
+  }, [currentLocation, destination]);
+
+  useEffect(() => {
+    if (error) {
+      alert("Failed to search route. Please try again.");
+    } else if (results.length !== 0) {
+      navigate('/route', {
+        state: {
+          results,
+          originPanorama,
+        },
+      });
+    }
+  }, [results, error]);
+
   const handleScanQRCode = () => {
     navigate("/qrcodereader"); // ./QrcodeReader へのページ遷移を実行
   };
 
   const handleSearchRoute = () => {
-    alert("Route search feature is under development.");
+    //クエリパラメータから値を取得
+    const queryParams = new URLSearchParams(location.search);
+    const originPlaceId = queryParams.get("origin_place_id");
+    const destinationPlaceId = queryParams.get("destination_place_id");
+    const originPanoramaId = queryParams.get("origin_panorama_id");
+
+    if (!originPlaceId || !destinationPlaceId || !originPanoramaId) {
+      alert("Please enter your current location and destination.");
+      return;
+    };
+    setCurrentLocation(originPlaceId);
+    setDestination(destinationPlaceId);
+    setOriginPanorama(originPanoramaId);
   };
 
   return (
@@ -69,8 +104,6 @@ const HomePage = () => {
           <small style={styles.hintText}>Type text to search your destination</small>
           <InputField
             placeholder="Enter Your Destination"
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
           />
         </div>
 

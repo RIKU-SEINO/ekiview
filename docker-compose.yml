@@ -1,5 +1,7 @@
 services:
   backend:
+    hostname: backend
+    container_name: backend
     build: ./backend
     environment:
       PG_HOST: ${PG_HOST}
@@ -11,11 +13,15 @@ services:
       - ./backend:/app
       - /app/node_modules
     ports:
-      - ${VITE_API_PORT}:${VITE_API_PORT}
+      - 5001:5001
     depends_on:
       - db
+    networks:
+      - app-network
 
   db:
+    hostname: db
+    container_name: db
     image: postgres:${PG_VERSION}
     restart: always
     volumes:
@@ -27,14 +33,24 @@ services:
       TZ: ${TZ}
     ports:
       - ${PG_PORT}:${PG_PORT}
+    networks:
+      - app-network
 
   frontend:
+    container_name: frontend
+    hostname: frontend
     build: ./frontend
     ports:
-      - ${VITE_PORT}:${VITE_PORT}
+      - 3001:3001
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    networks:
+      - app-network
 
 volumes:
   db-store:
+
+networks:
+  app-network:
+    driver: bridge

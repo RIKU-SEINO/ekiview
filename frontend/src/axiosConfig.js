@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const host = '0.0.0.0'; 
+const host = 'localhost'; 
 const apiPort = 5001;
 const baseURL = `http://${host}:${apiPort}`;
 

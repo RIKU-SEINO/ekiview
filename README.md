@@ -1,4 +1,4 @@
-# 環境構築手順
+# 環境構築手順（MacBookをお使いの方）
 ## 1. プロジェクトのリポジトリをクローン
 1. プロジェクトのリポジトリをクローン
 ```bash
@@ -21,11 +21,7 @@ cp .env.sample .env
 
 ### 2-1. Docker / Docker Composeのインストール
 
-[Windows 11でWSLを使ってDockerとDocker Composeをセットアップする方法 - Qiita](https://qiita.com/c8h9no2/items/63207d8343566a489bdd)
-
-※↑上記がやや難しければ、下記↓でもできるかなと思います
-
-[Dockerのインストール（Windows向け)](https://sukkiri.jp/technologies/virtualizers/wsl2%E3%81%AE%E5%B0%8E%E5%85%A5%E3%80%90windows10%EF%BC%88%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B32004-%E4%BB%A5%E4%B8%8A-or-windows11%E3%80%91.html)
+https://matsuand.github.io/docs.docker.jp.onthefly/desktop/mac/install/
 
 ### 2-2. バージョンの確認
 下記二つを確認し、それぞれDockerとDocker Composeのバージョンがそれぞれ出力されればOKです。
@@ -128,3 +124,7 @@ docker compose exec backend npx sequelize-cli db:seed:all
 
 - それ以外のエラー
   - Docker DesktopのContainersで作成されているコンテナをクリックすると、一つだけContainersがあるので、それをクリックし、止まっているコンテナのログを送って欲しいです。
+
+# Windows PCをお使いの方
+
+https://www.notion.so/Windows-15f8ebd4568080e8afeefd6755234ede?pvs=4

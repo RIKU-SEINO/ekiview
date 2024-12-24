@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Header from "../components/Header";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 import Footer from "../components/Footer";
 
 const HomePage = () => {
+  const { t } = useTranslation();
   const [currentLocation, setCurrentLocation] = useState("");
   const [destination, setDestination] = useState("");
 
@@ -27,11 +29,11 @@ const HomePage = () => {
         {/* Current Location */}
         <div style={styles.subContent}>
           <div style={styles.descriptionField}>
-            <h4>1. Find Current Location</h4>
+            <h4>{t('1. Find Current Location')}</h4>  {/* 翻訳されたテキスト　*/}
           </div>
-          <small style={styles.hintText}>Type name of facility near your current location</small>
+          <small style={styles.hintText}>{t('Type name of facility near your current location')}</small>  {/* 翻訳されたテキスト　*/}
           <InputField
-            placeholder="Enter Current Location"
+            placeholder={t('Enter Current Location')}
             value={destination}
             onChange={(e) => setCurrentLocation(e.target.value)}
           />

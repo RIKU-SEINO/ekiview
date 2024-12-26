@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api', qrcodeRoutes);
-app.use('/api', placeSearchRoutes);
+app.use('/api/placesearch', placeSearchRoutes);
 app.use('/api/routes', routeSearchRoutes);
 
 app.get('/api/greet', async (req, res) => {

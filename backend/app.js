@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/api', qrcodeRoutes);
-app.use('/api', placeSearchRoutes);
+app.use('/api/placesearch', placeSearchRoutes);
 app.use('/api/routes', routeSearchRoutes);
 
 app.get('/api/greet', async (req, res) => {

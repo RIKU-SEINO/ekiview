@@ -21,16 +21,16 @@ const SettingsPage = () => {
 
       {/* Main Content */}
       <div style={styles.mainContent}>
-        <h2>{t('selectLanguage')}</h2> {/* 翻訳されたテキストを表示 */}
+        <h2>{t('selectLanguage')}</h2>
 
         {/* Language Selection Buttons */}
         <div style={styles.languageButtons}>
-          <Button text='english' onClick={() => handleLanguageChange('en')} style={styles.languageButton} />
-          <Button text='japanese' onClick={() => handleLanguageChange('ja')} style={styles.languageButton} />
-          <Button text='chinese' onClick={() => handleLanguageChange('zh')} style={styles.languageButton} />
-          <Button text='korean'onClick={() => handleLanguageChange('ko')} style={styles.languageButton} />
-          <Button text='spanish' onClick={() => handleLanguageChange('es')} style={styles.languageButton} />
-          <Button text='french' onClick={() => handleLanguageChange('fr')} style={styles.languageButton} />
+          <Button text='English' onClick={() => handleLanguageChange('en')} style={styles.languageButton} />
+          <Button text='Japanese' onClick={() => handleLanguageChange('ja')} style={styles.languageButton} />
+          <Button text='Chinese' onClick={() => handleLanguageChange('zh')} style={styles.languageButton} />
+          <Button text='Korean'onClick={() => handleLanguageChange('ko')} style={styles.languageButton} />
+          <Button text='Spanish' onClick={() => handleLanguageChange('es')} style={styles.languageButton} />
+          <Button text='French' onClick={() => handleLanguageChange('fr')} style={styles.languageButton} />
         </div>
       </div>
 

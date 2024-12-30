@@ -29,26 +29,26 @@ const HomePage = () => {
         {/* Current Location */}
         <div style={styles.subContent}>
           <div style={styles.descriptionField}>
-            <h4>{t('1. Find Current Location')}</h4>  {/* 翻訳されたテキスト　*/}
+            <h4>{t('1. Find Current Location')}</h4>
           </div>
-          <small style={styles.hintText}>{t('Type name of facility near your current location')}</small>  {/* 翻訳されたテキスト　*/}
+          <small style={styles.hintText}>{t('Type name of facility near your current location')}</small>
           <InputField
             placeholder={t('Enter Current Location')}
             value={destination}
             onChange={(e) => setCurrentLocation(e.target.value)}
           />
-          <small style={styles.hintText}>Or Scan QR Code to find your current location</small>
-          <Button text="Scan QR Code" onClick={handleScanQRCode} style={styles.qrButton} />
+          <small style={styles.hintText}>{t('Or Scan QR Code to find your current location')}</small>
+          <Button text={t('Scan QR Code')} onClick={handleScanQRCode} style={styles.qrButton} />
         </div>
 
         {/* Destination */}
         <div style={styles.subContent}>
           <div style={styles.descriptionField}>
-            <h4>2. Search Destination</h4>
+            <h4>{t('2. Search Destination')}</h4>
           </div>
-          <small style={styles.hintText}>Type text to search your destination</small>
+          <small style={styles.hintText}>{t('Type text to search your destination')}</small>
           <InputField
-            placeholder="Enter Your Destination"
+            placeholder={t('Enter Your Destination')}
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
           />
@@ -56,7 +56,7 @@ const HomePage = () => {
 
         {/* Search Button */}
         <div style={styles.subContent}>
-          <Button text="Search Route" onClick={handleSearchRoute} style={styles.searchButton} />
+          <Button text={t('Search Route')} onClick={handleSearchRoute} style={styles.searchButton} />
         </div>
       </div>
 

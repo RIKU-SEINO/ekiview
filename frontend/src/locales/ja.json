@@ -1,8 +1,14 @@
 {
     "selectLanguage": "言語を選択",
-    "1. Find Current Location": "1. 現在地を取得",
-    "Type name of facility near your current location": "現在地の近くの施設名を入力してください",
-    "Enter Current Location": "現在地を入力"
+    "1. Find Current Location": "1. 現在地を特定する",
+    "Type name of facility near your current location": "現在地付近の施設名を入力してください",
+    "Enter Current Location": "現在地を入力",
+    "Or Scan QR Code to find your current location": "QRコードをスキャンして現在地を特定する",
+    "Scan QR Code": "QRコードをスキャン",
+    "2. Search Destination": "2. 行き先を検索",
+    "Type text to search your destination": "行き先を検索するためにテキストを入力してください",
+    "Enter Your Destination": "行き先を入力",
+    "Search Route": "ルートを検索"
   }
   
   

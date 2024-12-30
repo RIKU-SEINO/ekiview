@@ -65,3 +65,90 @@ exports.directionsApiService = async (searchParams) => {
     throw new Error('Failed to fetch directions: ' + error.message);
   };
 }
+
+exports.transformRoutesService = (routes) => {
+  const transformedRoutes = routes.map(route => {
+    const allPolyline = [];
+  
+    const transformedLegs = route.legs.map(leg => ({
+      distance: leg.distance,
+      duration: leg.duration,
+      steps: leg.steps.map(step => {
+        const decodedStepPolyline = decodePolyline(step.polyline.points);
+        decodedStepPolyline.unshift(step.start_location);
+        for (let i = 0; i < decodedStepPolyline.length - 1; i++) {
+          if (decodedStepPolyline[i].lat === decodedStepPolyline[i + 1].lat && decodedStepPolyline[i].lng === decodedStepPolyline[i + 1].lng) {
+            decodedStepPolyline.splice(i, 1);
+            i--;
+          };
+        };
+        allPolyline.push(...decodedStepPolyline);
+  
+        return {
+          distance: step.distance,
+          duration: step.duration,
+          end_location: step.end_location,
+          html_instructions: step.html_instructions,
+          polyline: {
+            points: decodedStepPolyline
+          },
+          start_location: step.start_location,
+          travel_mode: step.travel_mode
+        };
+      })
+    }));
+  
+    return {
+      overview_polyline: {
+        points: decodePolyline(route.overview_polyline.points)
+      },
+      legs: transformedLegs,
+      all_polyline: allPolyline
+    };
+  });
+
+  return transformedRoutes;
+};
+
+/**
+ * Decodes an encoded polyline string into an array of coordinates.
+ *
+ * @param {string} encoded - The encoded polyline string.
+ * @returns {Array<Object>} An array of decoded coordinates (latitude and longitude).
+ * 
+ * @see https://stackoverflow.com/questions/15924834/decoding-polyline-with-new-google-maps-api
+ */
+const decodePolyline = (encoded) => {
+  let index = 0;
+  const length = encoded.length;
+  const coordinates = [];
+  let lat = 0;
+  let lng = 0;
+
+  while (index < length) {
+    let shift = 0;
+    let result = 0;
+    let byte;
+    do {
+      byte = encoded.charCodeAt(index++) - 63;
+      result |= (byte & 0x1f) << shift;
+      shift += 5;
+    } while (byte >= 0x20);
+    const deltaLat = (result & 1) ? ~(result >> 1) : (result >> 1);
+    lat += deltaLat;
+
+    shift = 0;
+    result = 0;
+    do {
+      byte = encoded.charCodeAt(index++) - 63;
+      result |= (byte & 0x1f) << shift;
+      shift += 5;
+    } while (byte >= 0x20);
+    const deltaLng = (result & 1) ? ~(result >> 1) : (result >> 1);
+    lng += deltaLng;
+
+    coordinates.push({ lat: lat / 1e5, lng: lng / 1e5 });
+  }
+
+  return coordinates;
+};

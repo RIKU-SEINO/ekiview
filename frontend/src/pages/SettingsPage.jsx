@@ -55,6 +55,7 @@ const styles = {
   },
   languageButtons: {
     display: "flex",
+    flexWrap: "wrap",
     justifyContent: "center",
     gap: "20px",
     marginTop: "20px",
@@ -66,6 +67,7 @@ const styles = {
     borderRadius: "5px",
     cursor: "pointer",
     padding: "10px 20px",
+    width: "100px"
   },
 };
 

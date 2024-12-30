@@ -5,18 +5,23 @@ import Header from "../components/Header";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 import Footer from "../components/Footer";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 const HomePage = () => {
   const [currentLocation, setCurrentLocation] = useState("");
   const [destination, setDestination] = useState("");
   const [originPanorama, setOriginPanorama] = useState("");
+  const [loading, setLoading] = useState(false);
   const { results, error, search } = useSearch();
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (currentLocation && destination) {
-      search(currentLocation, destination);
+      setLoading(true);
+      search(currentLocation, destination, originPanorama).finally(() => {
+        setLoading(false);
+      }); 
     }
   }, [currentLocation, destination]);
 
@@ -38,7 +43,6 @@ const HomePage = () => {
   };
 
   const handleSearchRoute = () => {
-    //クエリパラメータから値を取得
     const queryParams = new URLSearchParams(location.search);
     const originPlaceId = queryParams.get("origin_place_id");
     const destinationPlaceId = queryParams.get("destination_place_id");
@@ -90,6 +94,9 @@ const HomePage = () => {
           <Button text="Search Route" onClick={handleSearchRoute} style={styles.searchButton} />
         </div>
       </div>
+
+      {/* Loading Spinner */}
+      {loading && <LoadingOverlay />}
 
       {/* Footer */}
       <Footer />

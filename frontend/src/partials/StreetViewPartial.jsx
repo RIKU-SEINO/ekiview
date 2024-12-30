@@ -6,9 +6,9 @@ const StreetViewPartial = ({ results }) => {
   const routeCandidates = results.routes;
   const route = routeCandidates[0];
   const totalImages = route.streetviewUrls.length;
-  const angleDifference = currentIndex === 0 || Math.abs(route.headings[currentIndex + 1] - route.headings[currentIndex - 1]) <= 10
+  const angleDifference = Math.abs(route.headings[currentIndex + 1] - route.headings[currentIndex]) <= 10
   ? 0 
-  : route.headings[currentIndex + 1] - route.headings[currentIndex - 1];
+  : route.headings[currentIndex + 1] - route.headings[currentIndex];
 
   const handleArrowClick = (direction) => {
     setCurrentIndex((prevIndex) => {

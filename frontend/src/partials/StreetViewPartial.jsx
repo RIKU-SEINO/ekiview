@@ -42,7 +42,7 @@ const StreetViewPartial = ({ results }) => {
         viewBox="0 0 400 800"
         style={{
           position: "absolute",
-          top: "50%",
+          top: "40%",
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: "200px",
@@ -52,7 +52,7 @@ const StreetViewPartial = ({ results }) => {
       >
         {/* 矢印の垂直な直線部分 */}
         <path
-          d="M180,535 l0,-100"
+          d="M180,475 l0,-40"
           transform={`rotate(0, 180, 440)`}
           style={{
             fill: "none",

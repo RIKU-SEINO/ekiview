@@ -33,6 +33,7 @@ const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
  *        ...
  *       'steps': [
  *           {
+ *           'building_level': { 'number': -1 },
  *           'distance': {...},
  *           'duration': {...},
  *           'end_location': {...},
@@ -69,6 +70,9 @@ exports.directionsApiService = async (searchParams) => {
 exports.transformRoutesService = (routes) => {
   const transformedRoutes = routes.map(route => {
     const allPolyline = [];
+    const allBuildingLevels = [];
+    const _allBuildingLevels = [];
+    let isInsideBuilding = true;
   
     const transformedLegs = route.legs.map(leg => ({
       distance: leg.distance,
@@ -83,6 +87,22 @@ exports.transformRoutesService = (routes) => {
           };
         };
         allPolyline.push(...decodedStepPolyline);
+
+        const buildingLevel = step.building_level ? step.building_level.number : NaN;
+        isInsideBuilding = isInsideBuilding && !isNaN(buildingLevel);
+
+        //stepの中の各polylineの要素と同じ数だけ、buildingLevelをallBuildingLevelsに追加
+        for (let i = 0; i < decodedStepPolyline.length; i++) {
+          allBuildingLevels.push(buildingLevel);
+          _allBuildingLevels.push(buildingLevel);
+        };
+
+        //allBuildingLevelsの現在の要素と次の要素が異なる場合、現在の要素を次の要素に書き換える
+        for (let i = 0; i < allBuildingLevels.length - 1; i++) {
+          if (allBuildingLevels[i] !== allBuildingLevels[i + 1]) {
+            _allBuildingLevels[i] = allBuildingLevels[i + 1];
+          };
+        };
   
         return {
           distance: step.distance,
@@ -103,7 +123,9 @@ exports.transformRoutesService = (routes) => {
         points: decodePolyline(route.overview_polyline.points)
       },
       legs: transformedLegs,
-      all_polyline: allPolyline
+      all_polyline: allPolyline,
+      all_building_levels: _allBuildingLevels,
+      is_inside_building: isInsideBuilding
     };
   });
 

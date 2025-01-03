@@ -52,7 +52,6 @@ exports.routeSearch = async (req, res) => {
   try {
     const response = await directionsApiService(searchParams);
     const { routes, status } = response;
-    console.log(response);
 
     // Check if the response is successful
     if (status !== 'OK' || !routes || routes.length === 0) {
@@ -60,13 +59,15 @@ exports.routeSearch = async (req, res) => {
     }
 
     let transformedRoutes = transformRoutesService(routes);
+    const isInsideBuilding = transformedRoutes[0].is_inside_building;
+    if (!isInsideBuilding) {
+      throw new Error('Route is outside of the building');
+    }
 
     const currentPanoramaId = req.query.currentPanoramaId;
-    console.log(currentPanoramaId);
     const panoramas =  await fetchAllPanoramasAlongRouteService(transformedRoutes[0], currentPanoramaId);
     const panoramaIds = panoramas.panoramaIds;
     const panoramaHeadings = panoramas.panoramaHeadings;
-    console.log(panoramaIds);
     const streetviewUrls = await constructStreetviewUrls(panoramaIds, panoramaHeadings);
     transformedRoutes[0].streetviewUrls = streetviewUrls;
     transformedRoutes[0].headings = panoramaHeadings;

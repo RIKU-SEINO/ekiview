@@ -1,4 +1,6 @@
 const { tilesApiGenerateSessionTokenService, tilesApiMetadataService, tilesApiStreetviewService } = require('./googlemapsTilesFetchService');
+const { PanoramaConnections } = require('../models');
+const { Op } = require('sequelize');
 
 /**
  * Service to fetch all panorama ids and headings along the route
@@ -12,14 +14,82 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
   console.log("Panorama Search Start");
 
   const sessionToken = await tilesApiGenerateSessionTokenService();
-
   const panoramaIds = [currentPanoramaId];
   const panoramaHeadings = [];
+  const connectionsIds = [];
+  const targetPanoramaIds = []; // ルート上の各ステップで、ターゲットとしているパノラマIDを格納
   let cpaId = currentPanoramaId;
   let update = false;
 
+  // ルート上で、階段の入り口のパノラマIDを全て取得
+  for (let j=0; j<route['all_polyline'].length; j++) {
+    targetPanoramaIds.push(null);
+
+    const cpoBuildingLevel = route['all_building_levels'][j];
+    const cpoLat = route['all_polyline'][j].lat;
+    const cpoLng = route['all_polyline'][j].lng;
+    const npoBuildingLevel = route['all_building_levels'][j + 1];
+    const buildingLevelComparison = cpoBuildingLevel > npoBuildingLevel ? -1 : cpoBuildingLevel < npoBuildingLevel ? 1 : 0;
+    if (buildingLevelComparison === 0) continue;
+
+    const cpoPanoramaConnectionsWithDirection = await PanoramaConnections.findAll({
+      where: {
+        connection_id: {
+          [Op.notIn]: connectionsIds
+        },
+        building_level_comparison: buildingLevelComparison,
+      }
+    });
+
+    // 各cpoPanoramaConnectionの中で、cpoからの距離が最も近いものを選択
+    let minDistance = Infinity;
+    for (const connectionWithDirection of cpoPanoramaConnectionsWithDirection) {
+      const distance = haversineDistance(cpoLat, cpoLng, connectionWithDirection.panorama_lat, connectionWithDirection.panorama_lng);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestConnectionWithDirection = connectionWithDirection;
+      }
+    }
+    // nearestConnectionWithDirectionが見つかった場合、ターゲットとしてのパノラマIDをnearestConnectionWithDirection.panorama_idに設定
+    if (minDistance !== Infinity) {
+      connectionsIds.push(nearestConnectionWithDirection.connection_id);
+      // targetPanoramaIdsのnullを全てnearestConnectionWithDirection.panorama_idに置き換える
+      for (let k=0; k<targetPanoramaIds.length; k++) {
+        if (targetPanoramaIds[k] === null) {
+          targetPanoramaIds[k] = nearestConnectionWithDirection.panorama_id;
+        }
+      }
+    }
+  };
+
+  // targetPanoramaIdsのuniqueな値を取得
+  const supportPanoramaIdsToTargetPanoramaId = {};
+  const supportPanoramaHeadingsToTargetPanoramaId = {};
+  const uniqueTargetPanoramaIds = targetPanoramaIds.filter((x, i, self) => self.indexOf(x) === i);
+  // targetPanroamaIdsのそれぞれに対して、metadataを再帰的に取得し、隣接しているパノラマについてさらにmetadataを取得
+  for (const targetPanoramaId of uniqueTargetPanoramaIds) {
+    if (targetPanoramaId === null) continue;
+    supportPanoramaIdsToTargetPanoramaId[targetPanoramaId] = {};
+    supportPanoramaHeadingsToTargetPanoramaId[targetPanoramaId] = {};
+    const targetPanoramaMetadata = await tilesApiMetadataService(sessionToken, targetPanoramaId);
+    const targetPanoramaLinks = targetPanoramaMetadata.links;
+    for (const link of targetPanoramaLinks) {
+      const connectedPanoramaId = link.panoId;
+      supportPanoramaIdsToTargetPanoramaId[targetPanoramaId][connectedPanoramaId] = [targetPanoramaId];
+      supportPanoramaHeadingsToTargetPanoramaId[targetPanoramaId][connectedPanoramaId] = 180+link.heading;
+      const connectedPanoramaMetadata = await tilesApiMetadataService(sessionToken, connectedPanoramaId);
+      const connectedPanoramaLinks = connectedPanoramaMetadata.links;
+      for (const connectedLink of connectedPanoramaLinks) {
+        const connectedConnectedPanoramaId = connectedLink.panoId;
+        supportPanoramaIdsToTargetPanoramaId[targetPanoramaId][connectedConnectedPanoramaId] = [connectedPanoramaId, targetPanoramaId];
+        supportPanoramaHeadingsToTargetPanoramaId[targetPanoramaId][connectedConnectedPanoramaId] = [180+connectedLink.heading, 180+link.heading];
+      }
+    }
+  }
+
   let i = 0;
   while (i < route['all_polyline'].length - 1) {
+    console.log("panoramaIds: ", panoramaIds);
     if (!update) {
       const cpaMetadata = await tilesApiMetadataService(sessionToken, cpaId);
 
@@ -28,22 +98,23 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
         console.error("No links available for panorama: ", cpaId);
         break;
       }
+      var cpaCartesian = latLngToXY(cpaMetadata.originalLat, cpaMetadata.originalLng);
 
       var cpaLinks = cpaMetadata.links;
-      var cpaCartesian = latLngToXY(cpaMetadata.originalLat, cpaMetadata.originalLng);
     }
 
     const cpo = route['all_polyline'][i];
     const npo = route['all_polyline'][i + 1];
-    const cpoCartesian = latLngToXY(cpo.lat, cpo.lng);
+    let cpoCartesian = latLngToXY(cpo.lat, cpo.lng);
     const npoCartesian = latLngToXY(npo.lat, npo.lng);
 
     const vecCpo2Npo = vec(cpoCartesian, npoCartesian);
     const vecNpo2Cpa = vec(npoCartesian, cpaCartesian);
     const vecNpo2Cpo = vec(npoCartesian, cpoCartesian);
+    const npoHeadingFromCpo = degrees(Math.atan2(vecCpo2Npo.y, vecCpo2Npo.x));
     const cosine = cosineBetweenVectors(vecNpo2Cpa, vecNpo2Cpo);
 
-    // If the cosine is negative, the next point is ahead of the current point, update the cpo and npo
+    // If the cosine is negative, the cpa is ahead of the cpo, so update the cpo and npo
     if (cosine < 0) {
       update = true;
       i++;
@@ -51,15 +122,51 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
     }
 
     update = false;
+
+    const targetPanoramaId = targetPanoramaIds[i];
+    const support = supportPanoramaIdsToTargetPanoramaId[targetPanoramaId];
+    const supportHeading = supportPanoramaHeadingsToTargetPanoramaId[targetPanoramaId];
+    if (targetPanoramaId !== null && support[cpaId]) {
+      const connections = await PanoramaConnections.findAll({
+        where: {panorama_id: targetPanoramaId}
+      })
+      const entrypo = route['all_polyline'][i + support[cpaId].length];
+      const exitpo = route['all_polyline'][i + support[cpaId].length + 1];
+      const entrypoCartesian = latLngToXY(entrypo.lat, entrypo.lng);
+      const exitpoCartesian = latLngToXY(exitpo.lat, exitpo.lng);
+      let _minScore = Infinity;
+      let bestConnection = null;
+      for (const connection of connections) {
+        const connectionHeading = connection.heading;
+        const heading = degrees(Math.atan2(exitpoCartesian.y - entrypoCartesian.y, exitpoCartesian.x - entrypoCartesian.x));
+        const score = calculateAngleDifference(connectionHeading, heading);
+        if (score < _minScore) {
+          _minScore = score;
+          bestConnection = connection;
+        }
+      }
+
+      if (bestConnection === null) {
+        console.error("No connection found for panorama: ", cpaId);
+        break;
+      }
+      panoramaIds.push(...support[cpaId]);
+      panoramaIds.push(bestConnection.connected_panorama_id);
+      panoramaHeadings.push(...supportHeading[cpaId]);
+      panoramaHeadings.push(bestConnection.heading);
+      cpoCartesian = exitpoCartesian;
+      cpaId = bestConnection.connected_panorama_id;
+      //iは、targetPanoramaIdsの中で、targetPanoramaIdが出てくる最後のindexをとする
+      i = targetPanoramaIds.lastIndexOf(targetPanoramaId)+1;
+      console.log("次のid: " + cpaId);
+      continue;
+    }
     let minScore = Infinity;
     let npaId = cpaId;
     let bestHeading = null;
-
-    // Find the best panorama along the route
     for (const link of cpaLinks) {
       const apaId = link.panoId;
       const apaHeadingFromCpa = link.heading;
-      const npoHeadingFromCpo = degrees(Math.atan2(vecCpo2Npo.y, vecCpo2Npo.x));
       const score = calculateAngleDifference(apaHeadingFromCpa, npoHeadingFromCpo);
 
       if (score < minScore && !panoramaIds.includes(apaId)) {
@@ -68,14 +175,12 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
         bestHeading = apaHeadingFromCpa;
       }
     }
-
-    if (npaId === cpaId) {
+    if (npaId == cpaId) {
       console.error("Panorama Fetch along the route failed");
       break;
     }
-
-    // If the angle difference is too high, the route is likely incorrect, so backtrack
-    if (minScore > 70) {
+    // If the selected angle difference is too high, the route is likely incorrect, so backtrack
+    if (minScore > 70 && cpaLinks.length > 1) {
       console.warn("High angle difference detected, backtracking...");
       panoramaIds.pop();
       panoramaHeadings.pop();
@@ -86,7 +191,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
     panoramaIds.push(npaId);
     panoramaHeadings.push(bestHeading);
     cpaId = npaId;
-    cpaCartesian = npoCartesian;
+    cpoCartesian = npoCartesian;
     console.log("次のid: " + cpaId);
   };
 
@@ -96,12 +201,22 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
   };
 };
 
+/** Helper functions */
+
+/**
+ * Construct streetview URLs from panorama
+ * 
+ * @param {Array<String>} panoramaIds - The panorama IDs
+ * @param {Array<Float>} panoramaHeadings - The panorama headings
+ * 
+ * @returns {Array<String>} - The streetview URLs
+*/
 exports.constructStreetviewUrls = async (panoramaIds, panoramaHeadings) => {
   const streetviewUrls = [];
   for (let i = 0; i < panoramaIds.length; i++) {
     const panoramaId = panoramaIds[i];
     const heading = panoramaHeadings[i];
-    const pitch = 10;
+    const pitch = 20;
     const fov = 90;
     const height = 450;
     const width = 600;
@@ -127,6 +242,12 @@ exports.constructStreetviewUrls = async (panoramaIds, panoramaHeadings) => {
 */
 const degrees = (radians) => radians * (180 / Math.PI);
 
+/**
+ * convert degrees to radians
+ * 
+ * @param {float} degrees
+ * @returns {float} - radians
+*/
 const radians = (degrees) => degrees * (Math.PI / 180);
 
 /**
@@ -137,23 +258,19 @@ const radians = (degrees) => degrees * (Math.PI / 180);
  * @returns {Object} - { x: x-coordinate, y: y-coordinate }
  */
 const latLngToXY = (lat, lng) => {
-  // 楕円体定数 (GRS80)
-  const a = 6378137.0; // 長半径 (m)
-  const f = 1 / 298.257222101; // 扁平率
-  const e2 = 2 * f - f * f; // 第一離心率の2乗
+  const a = 6378137.0; // ellipsoidal semi-major axis (m)
+  const f = 1 / 298.257222101; // inverse flattening
+  const e2 = 2 * f - f * f; // eccentricity squared
 
-  // ラジアンに変換
   const latRad = radians(lat);
   const lonRad = radians(lng);
-  const centralMeridian = 135; // 中央子午線 (度)
+  const centralMeridian = 135; // central meridian (degree)
   const centralMeridianRad = centralMeridian * Math.PI / 180;
 
-  // 子午線弧長を計算
   const n = a / Math.sqrt(1 - e2 * Math.sin(latRad) * Math.sin(latRad));
   const t = Math.tan(latRad);
   const eta2 = (e2 / (1 - e2)) * Math.cos(latRad) * Math.cos(latRad);
 
-  // 子午線弧長 (m)
   const m0 = a * (
       (1 - e2 / 4 - 3 * e2 * e2 / 64 - 5 * e2 * e2 * e2 / 256) * latRad
       - (3 * e2 / 8 + 3 * e2 * e2 / 32 + 45 * e2 * e2 * e2 / 1024) * Math.sin(2 * latRad)
@@ -161,10 +278,8 @@ const latLngToXY = (lat, lng) => {
       - (35 * e2 * e2 * e2 / 3072) * Math.sin(6 * latRad)
   );
 
-  // 経度差
   const deltaLambda = lonRad - centralMeridianRad;
 
-  // 平面直角座標系の計算
   const x = m0 + n * t * (
       deltaLambda * deltaLambda / 2
       + (5 - t * t + 9 * eta2 + 4 * eta2 * eta2) * deltaLambda * deltaLambda * deltaLambda * deltaLambda / 24
@@ -192,6 +307,30 @@ const vec = (point1, point2) => {
     y: point2.y - point1.y
   }
 }
+
+/**
+ * compute the haversine distance between two points
+ * 
+ * @param {*} lat1 
+ * @param {*} lon1 
+ * @param {*} lat2 
+ * @param {*} lon2 
+ * @returns {float} - haversine distance in metres
+ */
+const haversineDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371e3; // metres
+  const a1 = radians(lat1);
+  const a2 = radians(lat2);
+  const a3 = radians(lat2 - lat1);
+  const a4 = radians(lon2 - lon1);
+
+  const a = Math.sin(a3 / 2) * Math.sin(a3 / 2) +
+    Math.cos(a1) * Math.cos(a2) *
+    Math.sin(a4 / 2) * Math.sin(a4 / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c; // in metres
+};
 
 /**
  * compute the cosine of the angle between two vectors

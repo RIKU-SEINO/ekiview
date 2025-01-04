@@ -1,5 +1,5 @@
 const axios = require('axios');
-// const { setCache, getCache } = require('./cacheService');
+const cacheService = require('./cacheService');
 require('dotenv').config({ path: '../.env' });
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
@@ -29,30 +29,20 @@ exports.tilesApiGenerateSessionTokenService = async () => {
 exports.tilesApiMetadataService = async (sessionToken, panoId) => {
   const metadataUrl = `https://tile.googleapis.com/v1/streetview/metadata?panoId=${panoId}&key=${GOOGLE_MAPS_API_KEY}&session=${sessionToken}`;
 
+  const cacheKey = `metadata-${panoId}`;
   try {
-    const response = await axios.get(metadataUrl);
-    const metadata = response.data;
-    return metadata;
+    const cachedMetadata = await cacheService.get(cacheKey);
+    if (cachedMetadata) {
+      return JSON.parse(cachedMetadata);
+    } else {
+      const response = await axios.get(metadataUrl);
+      const metadata = response.data;
+      await cacheService.set(cacheKey, JSON.stringify(metadata));
+      return metadata;
+    }
   } catch (error) {
     throw new Error('Failed to fetch metadata: ' + error.message);
   };
-
-  // TODO: キャッシュの実装
-  // Check if the metadata is already in the cache
-  // const cacheKey = `metadata-${panoId}-${GOOGLE_MAPS_API_KEY}`;
-  // try {
-  //   const cachedMetadata = await getCache(cacheKey);
-  //   if (cachedMetadata) {
-  //     return JSON.parse(cachedMetadata);
-  //   } else {
-  //     const response = await axios.get(metadataUrl);
-  //     const metadata = response.data;
-  //     await setCache(cacheKey, JSON.stringify(metadata));
-  //     return metadata;
-  //   }
-  // } catch (error) {
-  //   throw new Error('Failed to fetch metadata: ' + error.message);
-  // };
 };
 
 exports.tilesApiStreetviewService = async (panoId, heading, pitch, fov, height, width) => {

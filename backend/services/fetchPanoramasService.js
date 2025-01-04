@@ -65,31 +65,61 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
   // targetPanoramaIdsのuniqueな値を取得
   const supportPanoramaIdsToTargetPanoramaId = {};
   const supportPanoramaHeadingsToTargetPanoramaId = {};
-  const uniqueTargetPanoramaIds = targetPanoramaIds.filter((x, i, self) => self.indexOf(x) === i);
-  // targetPanroamaIdsのそれぞれに対して、metadataを再帰的に取得し、隣接しているパノラマについてさらにmetadataを取得
-  for (const targetPanoramaId of uniqueTargetPanoramaIds) {
-    if (targetPanoramaId === null) continue;
-    supportPanoramaIdsToTargetPanoramaId[targetPanoramaId] = {};
-    supportPanoramaHeadingsToTargetPanoramaId[targetPanoramaId] = {};
-    const targetPanoramaMetadata = await tilesApiMetadataService(sessionToken, targetPanoramaId);
-    const targetPanoramaLinks = targetPanoramaMetadata.links;
-    for (const link of targetPanoramaLinks) {
-      const connectedPanoramaId = link.panoId;
-      supportPanoramaIdsToTargetPanoramaId[targetPanoramaId][connectedPanoramaId] = [targetPanoramaId];
-      supportPanoramaHeadingsToTargetPanoramaId[targetPanoramaId][connectedPanoramaId] = 180+link.heading;
-      const connectedPanoramaMetadata = await tilesApiMetadataService(sessionToken, connectedPanoramaId);
-      const connectedPanoramaLinks = connectedPanoramaMetadata.links;
-      for (const connectedLink of connectedPanoramaLinks) {
-        const connectedConnectedPanoramaId = connectedLink.panoId;
-        supportPanoramaIdsToTargetPanoramaId[targetPanoramaId][connectedConnectedPanoramaId] = [connectedPanoramaId, targetPanoramaId];
-        supportPanoramaHeadingsToTargetPanoramaId[targetPanoramaId][connectedConnectedPanoramaId] = [180+connectedLink.heading, 180+link.heading];
+  await bfsFetchSupportPanoramaIds(sessionToken, targetPanoramaIds, 3);
+
+  async function bfsFetchSupportPanoramaIds(sessionToken, targetPanoramaIds, depthLimit) {
+    const uniqueTargetPanoramaIds = targetPanoramaIds.filter((x, i, self) => self.indexOf(x) === i);
+  
+    for (const targetPanoramaId of uniqueTargetPanoramaIds) {
+      if (targetPanoramaId === null) continue;
+      supportPanoramaIdsToTargetPanoramaId[targetPanoramaId] = {};
+      supportPanoramaHeadingsToTargetPanoramaId[targetPanoramaId] = {};
+  
+      const queue = [{ panoramaId: targetPanoramaId, depth: 0 }];
+      
+      while (queue.length > 0) {
+        const { panoramaId, depth } = queue.shift();
+        if (depth > depthLimit) continue;
+  
+        const metadata = await tilesApiMetadataService(sessionToken, panoramaId);
+        const links = metadata.links;
+  
+        for (const link of links) {
+          const connectedPanoramaId = link.panoId;
+          if (connectedPanoramaId === targetPanoramaId) continue;
+  
+          const panoramaIdsFromSearchPanoramaId = supportPanoramaIdsToTargetPanoramaId[targetPanoramaId][panoramaId] || [];
+          const panoramaHeadingsFromSearchPanoramaId = supportPanoramaHeadingsToTargetPanoramaId[targetPanoramaId][panoramaId] || [];
+  
+          const oldHeadings = supportPanoramaHeadingsToTargetPanoramaId[targetPanoramaId][connectedPanoramaId] || [];
+          const newPanoramaIds = [panoramaId, ...panoramaIdsFromSearchPanoramaId];
+          const newHeadings = [180 + link.heading, ...panoramaHeadingsFromSearchPanoramaId];
+  
+          let oldAngleAve = 0;
+          let newAngleAve = 0;
+          if (oldHeadings.length > 0) {
+            for (let i = 0; i < oldHeadings.length - 1; i++) {
+              oldAngleAve += calculateAngleDifference(oldHeadings[i], oldHeadings[i + 1]);
+            }
+            for (let i = 0; i < newHeadings.length - 1; i++) {
+              newAngleAve += calculateAngleDifference(newHeadings[i], newHeadings[i + 1]);
+            }
+          }
+  
+          if (oldAngleAve >= newAngleAve) {
+            supportPanoramaIdsToTargetPanoramaId[targetPanoramaId][connectedPanoramaId] = newPanoramaIds;
+            supportPanoramaHeadingsToTargetPanoramaId[targetPanoramaId][connectedPanoramaId] = newHeadings;
+          }
+  
+          queue.push({ panoramaId: connectedPanoramaId, depth: depth + 1 });
+        }
       }
     }
   }
+  
 
   let i = 0;
   while (i < route['all_polyline'].length - 1) {
-    console.log("panoramaIds: ", panoramaIds);
     if (!update) {
       const cpaMetadata = await tilesApiMetadataService(sessionToken, cpaId);
 

@@ -160,8 +160,10 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
       const connections = await PanoramaConnections.findAll({
         where: {panorama_id: targetPanoramaId}
       })
-      const entrypo = route['all_polyline'][i + support[cpaId].length];
-      const exitpo = route['all_polyline'][i + support[cpaId].length + 1];
+      //階段の入り口は、targetPanoramaIdsの中で、targetPanoramaIdが最後に出現する位置に対応する
+      const entrypoIndex = targetPanoramaIds.lastIndexOf(targetPanoramaId);
+      const entrypo = route['all_polyline'][entrypoIndex];
+      const exitpo = route['all_polyline'][entrypoIndex + 1];
       const entrypoCartesian = latLngToXY(entrypo.lat, entrypo.lng);
       const exitpoCartesian = latLngToXY(exitpo.lat, exitpo.lng);
       let _minScore = Infinity;
@@ -186,8 +188,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
       panoramaHeadings.push(bestConnection.heading);
       cpoCartesian = exitpoCartesian;
       cpaId = bestConnection.connected_panorama_id;
-      //iは、targetPanoramaIdsの中で、targetPanoramaIdが出てくる最後のindexをとする
-      i = targetPanoramaIds.lastIndexOf(targetPanoramaId)+1;
+      i = entrypoIndex + 1;
       console.log("次のid: " + cpaId);
       continue;
     }
@@ -210,7 +211,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
       break;
     }
     // If the selected angle difference is too high, the route is likely incorrect, so backtrack
-    if (minScore > 70 && cpaLinks.length > 1) {
+    if (minScore > 80 && cpaLinks.length > 1) {
       console.warn("High angle difference detected, backtracking...");
       panoramaIds.pop();
       panoramaHeadings.pop();

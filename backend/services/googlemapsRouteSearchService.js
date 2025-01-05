@@ -67,70 +67,105 @@ exports.directionsApiService = async (searchParams) => {
   };
 }
 
+/**
+ * Transforms routes data into a usable structure
+ *
+ * @param {Array} routes - Array of routes returned from Google Maps Directions API
+ * @returns {Array} - Transformed routes
+ */
 exports.transformRoutesService = (routes) => {
-  const transformedRoutes = routes.map(route => {
+  return routes.map(route => {
     const allPolyline = [];
     const allBuildingLevels = [];
     const _allBuildingLevels = [];
     let isInsideBuilding = true;
-  
-    const transformedLegs = route.legs.map(leg => ({
-      distance: leg.distance,
-      duration: leg.duration,
-      steps: leg.steps.map(step => {
-        const decodedStepPolyline = decodePolyline(step.polyline.points);
-        decodedStepPolyline.unshift(step.start_location);
-        for (let i = 0; i < decodedStepPolyline.length - 1; i++) {
-          if (decodedStepPolyline[i].lat === decodedStepPolyline[i + 1].lat && decodedStepPolyline[i].lng === decodedStepPolyline[i + 1].lng) {
-            decodedStepPolyline.splice(i, 1);
-            i--;
+    let isFirstStep = true;
+
+    const transformedLegs = route.legs.map(leg => {
+      return {
+        distance: leg.distance,
+        duration: leg.duration,
+        steps: leg.steps.map(step => {
+          const decodedStepPolyline = decodePolyline(step.polyline.points);
+          if (isFirstStep) {
+            decodedStepPolyline.unshift(step.start_location);
+            isFirstStep = false;
           };
-        };
-        allPolyline.push(...decodedStepPolyline);
+          allPolyline.push(...decodedStepPolyline);
 
-        const buildingLevel = step.building_level ? step.building_level.number : NaN;
-        isInsideBuilding = isInsideBuilding && !isNaN(buildingLevel);
+          const buildingLevel = step.building_level ? step.building_level.number : NaN;
+          isInsideBuilding = isInsideBuilding && !isNaN(buildingLevel);
 
-        //stepの中の各polylineの要素と同じ数だけ、buildingLevelをallBuildingLevelsに追加
-        for (let i = 0; i < decodedStepPolyline.length; i++) {
-          allBuildingLevels.push(buildingLevel);
-          _allBuildingLevels.push(buildingLevel);
-        };
+          // Fill building levels array
+          decodedStepPolyline.forEach(() => {
+            allBuildingLevels.push(buildingLevel);
+            _allBuildingLevels.push(buildingLevel);
+          });
 
-        //allBuildingLevelsの現在の要素と次の要素が異なる場合、現在の要素を次の要素に書き換える
-        for (let i = 0; i < allBuildingLevels.length - 1; i++) {
-          if (allBuildingLevels[i] !== allBuildingLevels[i + 1]) {
-            _allBuildingLevels[i] = allBuildingLevels[i + 1];
+          return {
+            distance: step.distance,
+            duration: step.duration,
+            end_location: step.end_location,
+            html_instructions: step.html_instructions,
+            polyline: { points: decodedStepPolyline },
+            start_location: step.start_location,
+            travel_mode: step.travel_mode
           };
-        };
-  
-        return {
-          distance: step.distance,
-          duration: step.duration,
-          end_location: step.end_location,
-          html_instructions: step.html_instructions,
-          polyline: {
-            points: decodedStepPolyline
-          },
-          start_location: step.start_location,
-          travel_mode: step.travel_mode
-        };
-      })
-    }));
-  
+        })
+      };
+    });
+
+    // Update _allBuildingLevels for transitions
+    for (let i = 0; i < allBuildingLevels.length - 1; i++) {
+      if (allBuildingLevels[i] !== allBuildingLevels[i + 1]) {
+        _allBuildingLevels[i] = allBuildingLevels[i + 1];
+      }
+    }
+
+    // Remove duplicates in polylines and building levels
+    const result = filterArrays(allPolyline, _allBuildingLevels);
+
     return {
-      overview_polyline: {
-        points: decodePolyline(route.overview_polyline.points)
-      },
+      overview_polyline: { points: decodePolyline(route.overview_polyline.points) },
       legs: transformedLegs,
-      all_polyline: allPolyline,
-      all_building_levels: _allBuildingLevels,
+      all_polyline: result.array1,
+      all_building_levels: result.array2,
       is_inside_building: isInsideBuilding
     };
   });
-
-  return transformedRoutes;
 };
+
+/**
+ * Filters two arrays to remove duplicates while keeping them in sync
+ *
+ * @param {Array} array1 - The first array to filter
+ * @param {Array} array2 - The second array to filter in sync with array1
+ * @returns {Object} - Object containing filtered arrays
+ */
+function filterArrays(array1, array2) {
+  console.log(array1);
+  console.log(array2);
+  if (array1.length !== array2.length) {
+    throw new Error("Array lengths must be the same.");
+  }
+
+  const seen = new Set();
+  const filteredArray1 = [];
+  const filteredArray2 = [];
+
+  for (let i = 0; i < array1.length; i++) {
+    const key = JSON.stringify(array1[i]);
+    if (!seen.has(key)) {
+      seen.add(key);
+      filteredArray1.push(array1[i]);
+      filteredArray2.push(array2[i]);
+    }
+  }
+
+  console.log(filteredArray1);
+  console.log(filteredArray2);
+  return { array1: filteredArray1, array2: filteredArray2 };
+}
 
 /**
  * Decodes an encoded polyline string into an array of coordinates.

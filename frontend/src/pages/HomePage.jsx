@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSearch from "../hook/useSearch";
+import usePlaceSuggestions from "../hook/Placesearch";
 import Header from "../components/Header";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
@@ -10,6 +11,7 @@ const HomePage = () => {
   const [currentLocation, setCurrentLocation] = useState("");
   const [destination, setDestination] = useState("");
   const [originPanorama, setOriginPanorama] = useState("");
+  const { suggestions, fetchSuggestions } = usePlaceSuggestions();
   const { results, error, search } = useSearch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,6 +34,21 @@ const HomePage = () => {
       });
     }
   }, [results, error]);
+
+  const handleDestinationInputChange = async (e) => {
+    const inputValue = e.target.value;
+    setDestination(inputValue);
+    //console.log("User Input:", inputValue);
+    if (inputValue.length >= 3) {
+      await fetchSuggestions(inputValue); // 3文字以上でサジェスト取得
+    }
+  };
+
+  const handleSuggestionSelect = (suggestion) => {
+    setDestination(suggestion.mainText);
+    navigate(`/home?destination_place_id=${suggestion.placeId}`);
+    //setSuggestions([]);
+  };
 
   const handleScanQRCode = () => {
     alert("QR Code scanning feature is under development.");
@@ -82,7 +99,20 @@ const HomePage = () => {
           <small style={styles.hintText}>Type text to search your destination</small>
           <InputField
             placeholder="Enter Your Destination"
+            value={destination}
+            onChange={handleDestinationInputChange}
           />
+          {suggestions.length > 0 && (
+        <ul>
+            {suggestions.map((suggestion, index) => (
+            <li key={index} onClick={() => handleSuggestionSelect(suggestion)}>
+              <strong>{suggestion.mainText}</strong>
+              <br/>
+              <small>{suggestion.secondaryText}</small>
+            </li>
+            ))}
+        </ul>
+          )}
         </div>
 
         {/* Search Button */}

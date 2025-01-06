@@ -28,22 +28,34 @@ exports.generateTilesAPISessionToken = async (req, res) => {
   };
 };
 
-exports.placesAutocomplete = async (params) => {
-  const { input, sessiontoken, location, radius } = params;
+const generateUUID = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0,
+      v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
 
-  const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=${GOOGLE_MAPS_API_KEY}`;
-  const query = {
-    input,
-    key: GOOGLE_MAPS_API_KEY,
-    sessiontoken,
-    ...(location && { location: `${location.lat},${location.lng}` }),
-    ...(radius && { radius }),
-  };
+/**
+ * Call the Google Maps Place Autocomplete API
+ * @param {string} input - User input for place search
+ * @param {string} sessionToken - A session token for the request
+ * @returns {Promise<Object>} - API response
+ */
+const callPlaceAutocompleteAPI = async (input, sessionToken) => {
+  const autocompleteUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
+    input
+  )}&key=${GOOGLE_MAPS_API_KEY}&sessiontoken=${sessionToken}`;
 
   try {
-    const response = await axios.get(url, { params: query });
-    return response.data; // Return the API response
+    const response = await axios.get(autocompleteUrl);
+    return response.data;
   } catch (error) {
     throw new Error('Failed to fetch autocomplete suggestions: ' + error.message);
   }
+};
+
+module.exports = {
+  generateUUID,
+  callPlaceAutocompleteAPI,
 };

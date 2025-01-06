@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSearch from "../hook/useSearch";
+import usePlaceSuggestions from "../hook/Placesearch";
 import Header from "../components/Header";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
@@ -13,6 +14,7 @@ const HomePage = () => {
   const [destination, setDestination] = useState(""); // 目的地の状態
   const [isLocationDisabled, setIsLocationDisabled] = useState(false); // 入力フィールドの無効化状態
   const [originPanorama, setOriginPanorama] = useState("");
+  const { suggestions, fetchSuggestions } = usePlaceSuggestions();
   const { results, error, search } = useSearch();
 
   const location = useLocation(); // 現在のURL情報を取得
@@ -51,6 +53,21 @@ const HomePage = () => {
       });
     }
   }, [results, error]);
+
+  const handleDestinationInputChange = async (e) => {
+    const inputValue = e.target.value;
+    setDestination(inputValue);
+    //console.log("User Input:", inputValue);
+    if (inputValue.length >= 3) {
+      await fetchSuggestions(inputValue); // 3文字以上でサジェスト取得
+    }
+  };
+
+  const handleSuggestionSelect = (suggestion) => {
+    setDestination(suggestion.mainText);
+    navigate(`/home?destination_place_id=${suggestion.placeId}`);
+    //setSuggestions([]);
+  };
 
   const handleScanQRCode = () => {
     navigate("/qrcodereader"); // ./QrcodeReader へのページ遷移を実行
@@ -104,7 +121,20 @@ const HomePage = () => {
           <small style={styles.hintText}>Type text to search your destination</small>
           <InputField
             placeholder="Enter Your Destination"
+            value={destination}
+            onChange={handleDestinationInputChange}
           />
+          {suggestions.length > 0 && (
+        <ul>
+            {suggestions.map((suggestion, index) => (
+            <li key={index} onClick={() => handleSuggestionSelect(suggestion)}>
+              <strong>{suggestion.mainText}</strong>
+              <br/>
+              <small>{suggestion.secondaryText}</small>
+            </li>
+            ))}
+        </ul>
+          )}
         </div>
 
         {/* Search Button */}

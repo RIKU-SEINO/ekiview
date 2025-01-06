@@ -1,8 +1,9 @@
 const axios = require('axios');
 require('dotenv').config({ path: '../.env' });
 
-const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+//const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
+const GOOGLE_MAPS_API_KEY="AIzaSyDG9PtzfIGV-IbS9mbpSTLkM3UxmPnyrVY"
 // TODO: GoogleMaps APIなどのAPIクライアント(APIを呼び出すモジュール)を作成
 // TODO: 目的地検索や経路検索する際にGoogle Maps APIを使用するのでここでクライアントを追加する感じかな
 

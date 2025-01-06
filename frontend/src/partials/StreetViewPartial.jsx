@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Slider, Box } from "@mui/material";
 
-const StreetViewPartial = ({ results }) => {
+const StreetViewPartial = ({ results, originalPanorama }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const routeCandidates = results.routes;
   const route = routeCandidates[0];
   const totalImages = route.streetviewUrls.length;
+  const allInstructions = route.all_instructions;
+  const routeStepIdsInPanoramaIds = route.routeStepIdsInPanoramaIds;
   const angleDifference = Math.abs(route.headings[currentIndex + 1] - route.headings[currentIndex]) <= 10
   ? 0 
   : route.headings[currentIndex + 1] - route.headings[currentIndex];
@@ -22,10 +24,21 @@ const StreetViewPartial = ({ results }) => {
       sx={{
         position: "relative",
         width: "100%",
-        height: "400px",
+        height: "85%",
         overflow: "hidden",
       }}
     >
+    <div
+      style={{
+        fontSize: "1rem",
+        color: "#2c3e50",
+        textAlign: "center",
+        marginBottom: "10px",
+        lineHeight: "1.5",
+      }}
+    >
+      {currentIndex == totalImages - 3 ? "End of Route" : allInstructions[routeStepIdsInPanoramaIds[currentIndex]].replace(/<\/?b>/g, "")}
+    </div>
       {/* 現在の画像を表示 */}
       <img
         src={route.streetviewUrls[currentIndex]}
@@ -42,7 +55,7 @@ const StreetViewPartial = ({ results }) => {
         viewBox="0 0 400 800"
         style={{
           position: "absolute",
-          top: "40%",
+          top: "60%",
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: "200px",

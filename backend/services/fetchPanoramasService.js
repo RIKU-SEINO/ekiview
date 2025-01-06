@@ -8,7 +8,7 @@ const { Op } = require('sequelize');
  * @param {Object} route - The route object
  * @param {string} currentPanoramaId - The current panorama ID
  * @returns {Object} - The object containing the panorama IDs and headings
- *  example: { panoramaIds: [panoramaId1, panoramaId2, ...], panoramaHeadings: [heading1, heading2, ...] }
+ *  example: { panoramaIds: [panoramaId1, panoramaId2, ...], panoramaHeadings: [heading1, heading2, ...], routeStepIdsInPanoramaIds: [routeStepId1, routeStepId1, routeStepId2, routeStepId3, routeStepId3, ...] }
 */
 exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) => {
   console.log("Panorama Search Start");
@@ -16,6 +16,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
   const sessionToken = await tilesApiGenerateSessionTokenService();
   const panoramaIds = [currentPanoramaId];
   const panoramaHeadings = [];
+  const routeStepIdsInPanoramaIds = [];
   const connectionsIds = [];
   const targetPanoramaIds = []; // ルート上の各ステップで、ターゲットとしているパノラマIDを格納
   let cpaId = currentPanoramaId;
@@ -186,10 +187,14 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
       panoramaIds.push(bestConnection.connected_panorama_id);
       panoramaHeadings.push(...supportHeading[cpaId]);
       panoramaHeadings.push(bestConnection.heading);
+      // support[cpaId]と同じ長さだけiを追加する
+      for (let l=0; l<support[cpaId].length; l++) {
+        routeStepIdsInPanoramaIds.push(entrypoIndex-1);
+      };
+      routeStepIdsInPanoramaIds.push(entrypoIndex);
       cpoCartesian = exitpoCartesian;
       cpaId = bestConnection.connected_panorama_id;
-      i = entrypoIndex + 1;
-      console.log("次のid: " + cpaId);
+      i = entrypoIndex;
       continue;
     }
     let minScore = Infinity;
@@ -221,14 +226,15 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
 
     panoramaIds.push(npaId);
     panoramaHeadings.push(bestHeading);
+    routeStepIdsInPanoramaIds.push(i);
     cpaId = npaId;
     cpoCartesian = npoCartesian;
-    console.log("次のid: " + cpaId);
   };
 
   return { 
     panoramaIds: panoramaIds,
-    panoramaHeadings: panoramaHeadings
+    panoramaHeadings: panoramaHeadings,
+    routeStepIdsInPanoramaIds: routeStepIdsInPanoramaIds
   };
 };
 

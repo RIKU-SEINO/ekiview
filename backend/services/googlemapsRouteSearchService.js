@@ -78,6 +78,8 @@ exports.transformRoutesService = (routes) => {
     const allPolyline = [];
     const allBuildingLevels = [];
     const _allBuildingLevels = [];
+    const allInstructions = [];
+    const _allInstructions = [];
     let isInsideBuilding = true;
     let isFirstStep = true;
 
@@ -100,6 +102,8 @@ exports.transformRoutesService = (routes) => {
           decodedStepPolyline.forEach(() => {
             allBuildingLevels.push(buildingLevel);
             _allBuildingLevels.push(buildingLevel);
+            allInstructions.push(step.html_instructions);
+            _allInstructions.push(step.html_instructions);
           });
 
           return {
@@ -122,15 +126,23 @@ exports.transformRoutesService = (routes) => {
       }
     }
 
-    // Remove duplicates in polylines and building levels
-    const result = filterArrays(allPolyline, _allBuildingLevels);
+    // Update _allInstructions for transitions
+    for (let i = 0; i < allInstructions.length - 1; i++) {
+      if (allInstructions[i] !== allInstructions[i + 1]) {
+        _allInstructions[i] = allInstructions[i + 1];
+      }
+    }
+
+    // Remove duplicates in polylines, building levels and instructions
+    const result = filterArrays(allPolyline, [_allBuildingLevels, _allInstructions]);
 
     return {
       overview_polyline: { points: decodePolyline(route.overview_polyline.points) },
       legs: transformedLegs,
-      all_polyline: result.array1,
-      all_building_levels: result.array2,
-      is_inside_building: isInsideBuilding
+      all_polyline: result.mainArray,
+      all_building_levels: result.subArrays[0],
+      is_inside_building: isInsideBuilding,
+      all_instructions: result.subArrays[1]
     };
   });
 };
@@ -138,33 +150,34 @@ exports.transformRoutesService = (routes) => {
 /**
  * Filters two arrays to remove duplicates while keeping them in sync
  *
- * @param {Array} array1 - The first array to filter
- * @param {Array} array2 - The second array to filter in sync with array1
+ * @param {Array} mainArray - The main array to filter
+ * @param {Array<Array>} subArrays - The sub arrays to filter. Elements at the same indices as in the mainArray will be removed
  * @returns {Object} - Object containing filtered arrays
  */
-function filterArrays(array1, array2) {
-  console.log(array1);
-  console.log(array2);
-  if (array1.length !== array2.length) {
-    throw new Error("Array lengths must be the same.");
-  }
+function filterArrays(mainArray, subArrays) {
+  for (let i = 0; i < subArrays.length; i++) {
+    const subArray = subArrays[i];
+    if (subArray.length !== mainArray.length) {
+      throw new Error('Sub arrays must have the same length as the main array');
+    };
+  };
 
   const seen = new Set();
-  const filteredArray1 = [];
-  const filteredArray2 = [];
+  const filteredMainArray = [];
+  const filteredSubArrays = subArrays.map(() => []);
 
-  for (let i = 0; i < array1.length; i++) {
-    const key = JSON.stringify(array1[i]);
+  mainArray.forEach((element, index) => {
+    const key = JSON.stringify(element);
     if (!seen.has(key)) {
       seen.add(key);
-      filteredArray1.push(array1[i]);
-      filteredArray2.push(array2[i]);
-    }
-  }
+      filteredMainArray.push(element);
+      subArrays.forEach((subArray, i) => {
+        filteredSubArrays[i].push(subArray[index]);
+      });
+    };
+  });
 
-  console.log(filteredArray1);
-  console.log(filteredArray2);
-  return { array1: filteredArray1, array2: filteredArray2 };
+  return { mainArray: filteredMainArray, subArrays: filteredSubArrays };
 }
 
 /**

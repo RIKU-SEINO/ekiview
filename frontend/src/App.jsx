@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import SettingsPage from './pages/SettingsPage';
 import Contributor from './pages/Contributor';
+import QrcodeReader from './pages/QrcodeReader';
 
 const App = () => {
   const [data, setData] = useState(null);
@@ -29,6 +30,7 @@ const App = () => {
         <Route path="/home" element={<HomePage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/contributor" element={<Contributor />} />
+        <Route path="/qrcodereader" element={<QrcodeReader />} />
         <Route path="/"
           element={
             <div>

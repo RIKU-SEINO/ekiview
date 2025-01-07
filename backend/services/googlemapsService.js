@@ -1,9 +1,8 @@
 const axios = require('axios');
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config('../.env');
 
-//const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
-const GOOGLE_MAPS_API_KEY="AIzaSyDG9PtzfIGV-IbS9mbpSTLkM3UxmPnyrVY"
 // TODO: GoogleMaps APIなどのAPIクライアント(APIを呼び出すモジュール)を作成
 // TODO: 目的地検索や経路検索する際にGoogle Maps APIを使用するのでここでクライアントを追加する感じかな
 
@@ -44,9 +43,7 @@ const generateUUID = () => {
  * @returns {Promise<Object>} - API response
  */
 const callPlaceAutocompleteAPI = async (input, sessionToken) => {
-  const autocompleteUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
-    input
-  )}&key=${GOOGLE_MAPS_API_KEY}&sessiontoken=${sessionToken}`;
+  const autocompleteUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${input}&key=${GOOGLE_MAPS_API_KEY}&sessiontoken=${sessionToken}`;
 
   try {
     const response = await axios.get(autocompleteUrl);

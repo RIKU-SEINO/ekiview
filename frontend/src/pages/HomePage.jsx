@@ -10,8 +10,9 @@ import Footer from "../components/Footer";
 const HomePage = () => {
   const [currentLocation, setCurrentLocation] = useState("");
   const [destination, setDestination] = useState("");
+  const [hoverIndex, setHoverIndex] = useState(null);
   const [originPanorama, setOriginPanorama] = useState("");
-  const { suggestions, fetchSuggestions } = usePlaceSuggestions();
+  const { suggestions, fetchSuggestions, resetSuggestions } = usePlaceSuggestions();
   const { results, error, search } = useSearch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ const HomePage = () => {
   const handleDestinationInputChange = async (e) => {
     const inputValue = e.target.value;
     setDestination(inputValue);
-    //console.log("User Input:", inputValue);
+
     if (inputValue.length >= 3) {
       await fetchSuggestions(inputValue); // 3文字以上でサジェスト取得
     }
@@ -47,7 +48,7 @@ const HomePage = () => {
   const handleSuggestionSelect = (suggestion) => {
     setDestination(suggestion.mainText);
     navigate(`/home?destination_place_id=${suggestion.placeId}`);
-    //setSuggestions([]);
+    resetSuggestions();
   };
 
   const handleScanQRCode = () => {
@@ -103,9 +104,15 @@ const HomePage = () => {
             onChange={handleDestinationInputChange}
           />
           {suggestions.length > 0 && (
-        <ul>
+        <ul style={styles.suggestionsList}>
             {suggestions.map((suggestion, index) => (
-            <li key={index} onClick={() => handleSuggestionSelect(suggestion)}>
+            <li key={index} style={{
+              ...styles.suggestionItem,
+              ...(hoverIndex === index ? styles.suggestionItemHover : {}),
+            }}
+             onMouseEnter={() => setHoverIndex(index)} // ホバー時
+             onMouseLeave={() => setHoverIndex(null)}
+             onClick={() => handleSuggestionSelect(suggestion)}>
               <strong>{suggestion.mainText}</strong>
               <br/>
               <small>{suggestion.secondaryText}</small>
@@ -145,6 +152,7 @@ const styles = {
     margin: "0 auto",
     width: "80%",
     textAlign: "left",
+    position: "relative"
   },
   descriptionField: {
     marginBottom: "-20px",
@@ -171,6 +179,29 @@ const styles = {
   hintText: {
     color: "gray",
     fontSize: "12px",
+  },
+  suggestionsList: {
+    listStyleType: "none", // 点を省略
+    padding: 0,
+    margin: "0px auto",
+    maxHeight: "200px", // スクロール領域の高さを指定
+    overflowY: "auto",
+    position: "absolute",
+    backgroundColor: "#fff",
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+    zIndex: 1,
+  },
+  suggestionItem: {
+    border: "1px solid #ccc", // 枠を追加
+    padding: "10px",
+    margin: 0,
+    backgroundColor: "#fff",
+    //textAlign: "center",
+    //width: "100%",
+    transition: "background-color 0.2s",
+  },
+  suggestionItemHover: {
+    backgroundColor: "#f0f0f0",
   },
 };
 

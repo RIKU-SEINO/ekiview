@@ -3,13 +3,16 @@ import Header from "../components/Header";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom"; // React Router の useNavigate をインポート
 
 const HomePage = () => {
   const [currentLocation, setCurrentLocation] = useState("");
   const [destination, setDestination] = useState("");
 
+  const navigate = useNavigate(); // useNavigate フックを取得
+
   const handleScanQRCode = () => {
-    alert("QR Code scanning feature is under development.");
+    navigate("/qrcodereader"); // ./QrcodeReader へのページ遷移を実行
   };
 
   const handleSearchRoute = () => {

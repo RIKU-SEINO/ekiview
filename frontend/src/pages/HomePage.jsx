@@ -70,6 +70,23 @@ const HomePage = () => {
     //setSuggestions([]);
   };
 
+  const location = useLocation(); // 現在のURL情報を取得
+  const navigate = useNavigate(); // useNavigate フックを取得
+
+  // クエリパラメータから qr_id を取得
+  const params = new URLSearchParams(location.search);
+  const qrId = params.get("qr_id");
+
+  // qr_id に基づいて place_id を取得するカスタムフック
+  const placeId = useFetchQrData(qrId);
+
+  // place_id がある場合、currentLocation に特定のテキストを設定し、入力フィールドを無効化
+  useEffect(() => {
+    if (placeId) {
+      setCurrentLocation("QRコードで指定された場所"); // place_id があればこのテキストに変更
+      setIsLocationDisabled(true); // 入力フィールドを無効化
+    }
+  }, [placeId]);
 
   const handleScanQRCode = () => {
     navigate("/qrcodereader"); // ./QrcodeReader へのページ遷移を実行

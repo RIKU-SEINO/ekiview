@@ -8,6 +8,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   qrcode.init({
+    id: {
+      type: DataTypes.INTEGER, // 整数型
+      primaryKey: true, // 主キー
+      autoIncrement: true, // 自動増分
+    },
     place_id: DataTypes.STRING,
     panorama_id: DataTypes.STRING
   }, {

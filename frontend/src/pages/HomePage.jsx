@@ -1,15 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 import Footer from "../components/Footer";
-import { useNavigate } from "react-router-dom"; // React Router の useNavigate をインポート
+import { useLocation, useNavigate } from "react-router-dom"; // React Router の useNavigate をインポート
+import useFetchQrData from "../hooks/useFetchQrData"; // 作成したカスタムフックをインポート
 
 const HomePage = () => {
-  const [currentLocation, setCurrentLocation] = useState("");
-  const [destination, setDestination] = useState("");
+  const [currentLocation, setCurrentLocation] = useState(""); // 現在地の状態
+  const [destination, setDestination] = useState(""); // 目的地の状態
+  const [isLocationDisabled, setIsLocationDisabled] = useState(false); // 入力フィールドの無効化状態
 
+  const location = useLocation(); // 現在のURL情報を取得
   const navigate = useNavigate(); // useNavigate フックを取得
+
+  // クエリパラメータから qr_id を取得
+  const params = new URLSearchParams(location.search);
+  const qrId = params.get("qr_id");
+
+  // qr_id に基づいて place_id を取得するカスタムフック
+  const placeId = useFetchQrData(qrId);
+
+  // place_id がある場合、currentLocation に特定のテキストを設定し、入力フィールドを無効化
+  useEffect(() => {
+    if (placeId) {
+      setCurrentLocation("QRコードで指定された場所"); // place_id があればこのテキストに変更
+      setIsLocationDisabled(true); // 入力フィールドを無効化
+    }
+  }, [placeId]);
 
   const handleScanQRCode = () => {
     navigate("/qrcodereader"); // ./QrcodeReader へのページ遷移を実行
@@ -35,8 +53,9 @@ const HomePage = () => {
           <small style={styles.hintText}>Type name of facility near your current location</small>
           <InputField
             placeholder="Enter Current Location"
-            value={destination}
+            value={currentLocation} // currentLocation に設定された値を表示
             onChange={(e) => setCurrentLocation(e.target.value)}
+            disabled={isLocationDisabled} // `place_id` があれば入力不可にする
           />
           <small style={styles.hintText}>Or Scan QR Code to find your current location</small>
           <Button text="Scan QR Code" onClick={handleScanQRCode} style={styles.qrButton} />
@@ -115,4 +134,3 @@ const styles = {
 };
 
 export default HomePage;
-

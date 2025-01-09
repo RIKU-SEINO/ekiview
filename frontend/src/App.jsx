@@ -6,7 +6,6 @@ import SettingsPage from './pages/SettingsPage';
 import Contributor from './pages/Contributor';
 import QrcodeReader from './pages/QrcodeReader';
 import RouteResultPage from './pages/RouteResultPage';
-import QrcodeReader from './pages/QrcodeReader';
 
 const App = () => {
   const [data, setData] = useState(null);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSearch from "../hook/useSearch";
 import usePlaceSuggestions from "../hook/Placesearch";
@@ -6,8 +6,7 @@ import Header from "../components/Header";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 import Footer from "../components/Footer";
-import { useLocation, useNavigate } from "react-router-dom"; // React Router の useNavigate をインポート
-import useFetchQrData from "../hooks/useFetchQrData"; // 作成したカスタムフックをインポート
+import useFetchQrData from "../hook/useFetchQrData"; // 作成したカスタムフックをインポート
 
 const HomePage = () => {
   const [currentLocation, setCurrentLocation] = useState(""); // 現在地の状態 // 現在地の状態
@@ -43,7 +42,7 @@ const HomePage = () => {
   }, [currentLocation, destination]);
 
   useEffect(() => {
-    if (error) {
+    if (error && currentLocation !== "QRコードで指定された場所") {
       alert("Failed to search route. Please try again.");
     } else if (results.length !== 0) {
       navigate('/route', {
@@ -66,19 +65,17 @@ const HomePage = () => {
 
   const handleSuggestionSelect = (suggestion) => {
     setDestination(suggestion.mainText);
-    navigate(`/home?destination_place_id=${suggestion.placeId}`);
-    //setSuggestions([]);
+  
+    // 現在のURLからクエリパラメータを取得
+    const queryParams = new URLSearchParams(location.search);
+  
+    // 既存のパラメータを保持しつつ、新しい destination_place_id を追加
+    queryParams.set("destination_place_id", suggestion.placeId);
+  
+    // 新しいURLでリダイレクト
+    navigate(`/home?${queryParams.toString()}`);
   };
-
-  const location = useLocation(); // 現在のURL情報を取得
-  const navigate = useNavigate(); // useNavigate フックを取得
-
-  // クエリパラメータから qr_id を取得
-  const params = new URLSearchParams(location.search);
-  const qrId = params.get("qr_id");
-
-  // qr_id に基づいて place_id を取得するカスタムフック
-  const placeId = useFetchQrData(qrId);
+  
 
   // place_id がある場合、currentLocation に特定のテキストを設定し、入力フィールドを無効化
   useEffect(() => {

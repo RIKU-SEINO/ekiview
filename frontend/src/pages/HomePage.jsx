@@ -10,9 +10,10 @@ import { useLocation, useNavigate } from "react-router-dom"; // React Router の
 import useFetchQrData from "../hooks/useFetchQrData"; // 作成したカスタムフックをインポート
 
 const HomePage = () => {
-  const [currentLocation, setCurrentLocation] = useState(""); // 現在地の状態
+  const [currentLocation, setCurrentLocation] = useState(""); // 現在地の状態 // 現在地の状態
   const [destination, setDestination] = useState(""); // 目的地の状態
-  const [isLocationDisabled, setIsLocationDisabled] = useState(false); // 入力フィールドの無効化状態
+  const [isLocationDisabled, setIsLocationDisabled] = useState(false); // 入力フィールドの無効化状態 // 目的地の状態
+
   const [originPanorama, setOriginPanorama] = useState("");
   const { suggestions, fetchSuggestions } = usePlaceSuggestions();
   const { results, error, search } = useSearch();
@@ -68,6 +69,7 @@ const HomePage = () => {
     navigate(`/home?destination_place_id=${suggestion.placeId}`);
     //setSuggestions([]);
   };
+
 
   const handleScanQRCode = () => {
     navigate("/qrcodereader"); // ./QrcodeReader へのページ遷移を実行

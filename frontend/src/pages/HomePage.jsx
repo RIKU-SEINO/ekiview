@@ -86,8 +86,13 @@ const HomePage = () => {
   }, [placeId]);
 
   const handleScanQRCode = () => {
-    navigate("/qrcodereader"); // ./QrcodeReader へのページ遷移を実行
+    // 現在のURLからクエリパラメータを取得
+    const queryParams = new URLSearchParams(location.search);
+  
+    // 新しいURLにクエリパラメータを付加して遷移
+    navigate(`/qrcodereader?${queryParams.toString()}`);
   };
+  
 
   const handleSearchRoute = () => {
     //クエリパラメータから値を取得

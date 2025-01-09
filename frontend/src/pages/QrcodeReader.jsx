@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { BrowserMultiFormatReader } from "@zxing/library";
+import { useLocation } from "react-router-dom";
 
 const QRCodeReader = () => {
   const [scannedResult, setScannedResult] = useState(null);
   const [error, setError] = useState("Scan QR Code");
   const [redirecting, setRedirecting] = useState(false); // Redirectingメッセージ用のステート
+
+  const location = useLocation(); // 現在のURL情報を取得
 
   useEffect(() => {
     // ページが開いたらカメラを自動起動
@@ -43,8 +46,22 @@ const QRCodeReader = () => {
           // URLチェック
           if (isValidUrl(resultText)) {
             setRedirecting(true); // Redirectingメッセージを表示
+
+            // 現在のクエリパラメータを取得
+            const currentParams = new URLSearchParams(location.search);
+
+            // QRコードのURLに現在のクエリパラメータを追加
+            const url = new URL(resultText);
+            currentParams.forEach((value, key) => {
+              url.searchParams.set(key, value);
+            });
+
+            // 最終的なリダイレクトURL
+            const redirectUrl = url.toString();
+
+            // リダイレクト
             setTimeout(() => {
-              window.location.href = resultText; // URLにリダイレクト
+              window.location.href = redirectUrl; // クエリを追加したURLにリダイレクト
             }, 1000); // 1秒待ってリダイレクト
           }
         } else if (err) {

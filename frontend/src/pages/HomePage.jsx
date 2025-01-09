@@ -47,7 +47,9 @@ const HomePage = () => {
 
   const handleSuggestionSelect = (suggestion) => {
     setDestination(suggestion.mainText);
-    navigate(`/home?destination_place_id=${suggestion.placeId}`);
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set("destination_place_id", suggestion.placeId);
+    window.history.pushState({}, "", currentUrl.toString());
     resetSuggestions();
   };
 

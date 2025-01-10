@@ -53,7 +53,25 @@ const callPlaceAutocompleteAPI = async (input, sessionToken) => {
   }
 };
 
+/**
+ * Call the Google Maps Place Details API
+ * 
+ * @param {string} placeId - A place ID for the request
+ * @returns {Promise<Object>} - API response
+ */
+const callPlaceDetailsAPI = async (placeId) => {
+  const placeDetailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?fields=name&place_id=${placeId}&key=${GOOGLE_MAPS_API_KEY}`;
+
+  try {
+    const response = await axios.get(placeDetailsUrl);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch place details: ' + error.message);
+  }
+};
+
 module.exports = {
   generateUUID,
   callPlaceAutocompleteAPI,
+  callPlaceDetailsAPI,
 };

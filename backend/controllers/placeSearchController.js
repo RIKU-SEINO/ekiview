@@ -1,6 +1,6 @@
 const googleMapsService = require('../services/googlemapsService');
 
-exports.placeSearchHandler = async (req, res) => {
+exports.autocompleteHandler = async (req, res) => {
   const { input, sessionToken: existingSessionToken } = req.query;
 
   // Step 1: Generate or use provided session token
@@ -21,6 +21,21 @@ exports.placeSearchHandler = async (req, res) => {
     res.status(200).json({
       sessionToken,
       autocompleteSuggestions,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.placeDetailsHandler = async (req, res) => {
+  const { place_id } = req.query;
+
+  try {
+    // Call Google Maps Place Details API
+    const placeDetails = await googleMapsService.callPlaceDetailsAPI(place_id);
+
+    res.status(200).json({
+      placeDetails,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

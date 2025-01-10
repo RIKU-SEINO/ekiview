@@ -12,6 +12,9 @@ const HomePage = () => {
   const [currentLocation, setCurrentLocation] = useState(""); // 現在地の状態 // 現在地の状態
   const [destination, setDestination] = useState(""); // 目的地の状態
   const [isLocationDisabled, setIsLocationDisabled] = useState(false); // 入力フィールドの無効化状態 // 目的地の状態
+  const [hoverIndex, setHoverIndex] = useState(null);
+  const [originPanorama, setOriginPanorama] = useState("");
+  const { suggestions, fetchSuggestions, resetSuggestions } = usePlaceSuggestions();
 
   const [originPanorama, setOriginPanorama] = useState("");
   const { suggestions, fetchSuggestions } = usePlaceSuggestions();
@@ -87,7 +90,6 @@ const HomePage = () => {
   const handleDestinationInputChange = async (e) => {
     const inputValue = e.target.value;
     setDestination(inputValue);
-    //console.log("User Input:", inputValue);
     if (inputValue.length >= 3) {
       await fetchSuggestions(inputValue); // 3文字以上でサジェスト取得
     }
@@ -95,17 +97,11 @@ const HomePage = () => {
 
   const handleSuggestionSelect = (suggestion) => {
     setDestination(suggestion.mainText);
-  
-    // 現在のURLからクエリパラメータを取得
-    const queryParams = new URLSearchParams(location.search);
-  
-    // 既存のパラメータを保持しつつ、新しい destination_place_id を追加
-    queryParams.set("destination_place_id", suggestion.placeId);
-  
-    // 新しいURLでリダイレクト
-    navigate(`/home?${queryParams.toString()}`);
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set("destination_place_id", suggestion.placeId);
+    window.history.pushState({}, "", currentUrl.toString());
+    resetSuggestions();
   };
-  
 
   // place_id がある場合、currentLocation に特定のテキストを設定し、入力フィールドを無効化
   useEffect(() => {
@@ -176,9 +172,15 @@ const HomePage = () => {
             onChange={handleDestinationInputChange}
           />
           {suggestions.length > 0 && (
-        <ul>
+        <ul style={styles.suggestionsList}>
             {suggestions.map((suggestion, index) => (
-            <li key={index} onClick={() => handleSuggestionSelect(suggestion)}>
+            <li key={index} style={{
+              ...styles.suggestionItem,
+              ...(hoverIndex === index ? styles.suggestionItemHover : {}),
+            }}
+             onMouseEnter={() => setHoverIndex(index)} // ホバー時
+             onMouseLeave={() => setHoverIndex(null)}
+             onClick={() => handleSuggestionSelect(suggestion)}>
               <strong>{suggestion.mainText}</strong>
               <br/>
               <small>{suggestion.secondaryText}</small>
@@ -218,6 +220,7 @@ const styles = {
     margin: "0 auto",
     width: "80%",
     textAlign: "left",
+    position: "relative"
   },
   descriptionField: {
     marginBottom: "-20px",
@@ -244,6 +247,29 @@ const styles = {
   hintText: {
     color: "gray",
     fontSize: "12px",
+  },
+  suggestionsList: {
+    listStyleType: "none", // 点を省略
+    padding: 0,
+    margin: "0px auto",
+    maxHeight: "200px", // スクロール領域の高さを指定
+    overflowY: "auto",
+    position: "absolute",
+    backgroundColor: "#fff",
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+    zIndex: 1,
+  },
+  suggestionItem: {
+    border: "1px solid #ccc", // 枠を追加
+    padding: "10px",
+    margin: 0,
+    backgroundColor: "#fff",
+    //textAlign: "center",
+    //width: "100%",
+    transition: "background-color 0.2s",
+  },
+  suggestionItemHover: {
+    backgroundColor: "#f0f0f0",
   },
 };
 

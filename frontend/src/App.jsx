@@ -31,7 +31,6 @@ const App = () => {
         <Route path="/home" element={<HomePage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/contributor" element={<Contributor />} />
-        <Route path="/qrcodereader" element={<QrcodeReader />} />
         <Route path="/route" element={<RouteResultPage />} />
         <Route path="/qrcodereader" element={<QrcodeReader />} />
         <Route path="/"

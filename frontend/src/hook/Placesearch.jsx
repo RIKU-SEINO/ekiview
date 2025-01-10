@@ -8,8 +8,8 @@ const usePlaceSuggestions = () => {
   const fetchSuggestions = async (input) => {
     try {
       const response = await axios.get(`/api/placesearch/placesearch?input=${input}`);
-      //console.log(response.data.autocompleteSuggestions.predictions);
-      const data = response.data.autocompleteSuggestions.predictions.map((place) => ({
+      const predictions = response.data.autocompleteSuggestions.predictions || [];
+      const data = predictions.map((place) => ({
         placeId: place.place_id,
         mainText: place.structured_formatting.main_text,
         secondaryText: place.structured_formatting.secondary_text,
@@ -18,11 +18,14 @@ const usePlaceSuggestions = () => {
     } catch (err) {
       console.error("Failed to fetch place suggestions:", err);
       setError(err);
-      setSuggestions([]); // エラー時にはサジェストをリセット
-    }
+      setSuggestions([]); // 候補リストをクリア
+      }
+  };
+  const resetSuggestions = () => {
+    setSuggestions([]);
   };
 
-  return { suggestions, error, fetchSuggestions };
+  return { suggestions, error, fetchSuggestions, resetSuggestions };
 };
 
 export default usePlaceSuggestions;

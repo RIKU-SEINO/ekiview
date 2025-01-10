@@ -19,6 +19,19 @@ const HomePage = () => {
 
   const location = useLocation(); // 現在のURL情報を取得
   const navigate = useNavigate(); // useNavigate フックを取得
+  
+  // セッションチェックのロジック
+  useEffect(() => {
+    const validateSession = async () => {
+      const isSessionValid = await checkSession();
+      if (!isSessionValid) {
+        // セッションが無効の場合、localStorage をクリアし、ログイン画面にリダイレクト
+        localStorage.clear();
+      }
+    };
+
+    validateSession();
+  }, [navigate]);
 
   // クエリパラメータから qr_id を取得
   const params = new URLSearchParams(location.search);
@@ -41,6 +54,14 @@ const HomePage = () => {
     }
   }, [currentLocation, destination]);
 
+  // 初期化時にlocalStorageから値を取得
+  useEffect(() => {
+    const savedDestination = localStorage.getItem("destination");
+    if (savedDestination) {
+      setDestination(savedDestination);
+    }
+  }, []);
+
   useEffect(() => {
     if (error && currentLocation !== "QRコードで指定された場所") {
       alert("Failed to search route. Please try again.");
@@ -53,6 +74,15 @@ const HomePage = () => {
       });
     }
   }, [results, error]);
+  
+  // ページ離脱時にlocalStorageにdestinationを保存
+  useEffect(() => {
+    return () => {
+      if (destination) {
+        localStorage.setItem("destination", destination);
+      }
+    };
+  }, [destination]);
 
   const handleDestinationInputChange = async (e) => {
     const inputValue = e.target.value;

@@ -16,8 +16,18 @@ const useFetchQrData = (qrId) => {
             // 現在のクエリパラメータを取得
             const queryParams = new URLSearchParams(location.search);
 
+            // `destination_id` のみを保持
+            const destinationId = queryParams.get("destination_id");
+            queryParams.delete("origin_place_id");
+            queryParams.delete("origin_panorama_id");
+            queryParams.delete("qr_id");        
+            
+            if (destinationId) {
+              queryParams.set("destination_id", destinationId);
+            }
+
             // 新しいパラメータを追加
-            queryParams.set("qr_id", qrId);
+            // queryParams.set("qr_id", qrId);
             queryParams.set("origin_place_id", response.data.place_id);
             queryParams.set("origin_panorama_id", response.data.panorama_id);
 

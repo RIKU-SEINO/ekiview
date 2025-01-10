@@ -1,13 +1,13 @@
 import { useState } from "react";
 import axios from '../axiosConfig';
 
-const usePlaceSuggestions = () => {
+export const usePlaceSuggestions = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [error, setError] = useState(null);
 
   const fetchSuggestions = async (input) => {
     try {
-      const response = await axios.get(`/api/placesearch/placesearch?input=${input}`);
+      const response = await axios.get(`/api/placesearch/autocomplete?input=${input}`);
       const predictions = response.data.autocompleteSuggestions.predictions || [];
       const data = predictions.map((place) => ({
         placeId: place.place_id,
@@ -28,4 +28,25 @@ const usePlaceSuggestions = () => {
   return { suggestions, error, fetchSuggestions, resetSuggestions };
 };
 
-export default usePlaceSuggestions;
+export const usePlaceDetails = () => {
+  const [originDetails, setOriginDetails] = useState("");
+  const [destinationDetails, setDestinationDetails] = useState("");
+  const [error, setError] = useState(null);
+
+  const fetchPlaceDetails = async ({placeId, mode}) => {
+    try {
+      const response = await axios.get(`/api/placesearch/details?place_id=${placeId}`);
+      if (mode === "origin") {
+        setOriginDetails(response.data.placeDetails.result.name);
+      } else {
+        setDestinationDetails(response.data.placeDetails.result.name);
+      }
+    } catch (err) {
+      console.error("Failed to fetch place details:", err);
+      setError(err);
+      setDetails(null);
+    }
+  };
+
+  return { originDetails, destinationDetails, error, fetchPlaceDetails };
+};

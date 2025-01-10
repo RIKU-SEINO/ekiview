@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { BrowserMultiFormatReader } from "@zxing/library";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";  
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 const QRCodeReader = () => {
   const [scannedResult, setScannedResult] = useState(null);
-  const [error, setError] = useState("Scan QR Code");
+  const [error, setError] = useState(null);
+  const [guide, setGuide] = useState("Scan QR code");
   const [redirecting, setRedirecting] = useState(false);
-  const [cameraPermission, setCameraPermission] = useState(null); // カメラの権限ステート
+  const [cameraPermission, setCameraPermission] = useState(null);
+  const [cameraStream, setCameraStream] = useState(null);  // カメラのストリームを保存
 
-  const location = useLocation(); // 現在のURL情報を取得
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // ページが開いたらカメラを自動起動
@@ -23,7 +26,6 @@ const QRCodeReader = () => {
     window.addEventListener("beforeunload", handleBeforeUnload);
     window.addEventListener("popstate", handleBeforeUnload);
 
-    // クリーンアップ処理
     return () => {
       stopCamera();
       window.removeEventListener("beforeunload", handleBeforeUnload);
@@ -36,6 +38,7 @@ const QRCodeReader = () => {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       if (stream) {
         setCameraPermission(true);
+        setCameraStream(stream);
         handleQRCodeRead();
       }
     } catch (err) {
@@ -47,7 +50,6 @@ const QRCodeReader = () => {
     const codeReader = new BrowserMultiFormatReader();
 
     try {
-      // デバイスのカメラをリストアップ
       const videoInputDevices = await codeReader.listVideoInputDevices();
       const selectedDeviceId =
         videoInputDevices.length > 0 ? videoInputDevices[0].deviceId : null;
@@ -63,29 +65,23 @@ const QRCodeReader = () => {
           const resultText = result.getText();
           setScannedResult(resultText);
 
-          // URLチェック
           if (isValidUrl(resultText)) {
-            setRedirecting(true); // Redirectingメッセージを表示
+            setRedirecting(true);
 
-            // 現在のクエリパラメータを取得
-            const currentParams = new URLSearchParams(location.search);
-
-            // QRコードのURLに現在のクエリパラメータを追加
             const url = new URL(resultText);
-            currentParams.forEach((value, key) => {
-              url.searchParams.set(key, value);
+            const currentQueryParams = new URLSearchParams(location.search);
+            const additionalQueryParams = new URLSearchParams(url.search);
+            additionalQueryParams.forEach((value, key) => {
+              currentQueryParams.set(key, value);
             });
 
-            // 最終的なリダイレクトURL
-            const redirectUrl = url.toString();
-
-            // リダイレクト
             setTimeout(() => {
-              window.location.href = redirectUrl; // クエリを追加したURLにリダイレクト
-            }, 1000); // 1秒待ってリダイレクト
+              navigate("/home?" + currentQueryParams.toString());
+              window.location.reload();
+            }, 1000);
           }
         } else if (err) {
-          setError("Scan QR Code"); // エラー時には「Scan QR Code」を表示
+          setGuide("Scan QR code");
         }
       });
     } catch (err) {
@@ -94,6 +90,11 @@ const QRCodeReader = () => {
   };
 
   const stopCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach((track) => track.stop());
+      setCameraStream(null);  // ストリームをクリア
+    }
+
     const videoElement = document.getElementById("video");
     if (videoElement && videoElement.srcObject) {
       const tracks = videoElement.srcObject.getTracks();
@@ -120,33 +121,42 @@ const QRCodeReader = () => {
     }
   };
 
-  return (
-    <div style={styles.container}>
-    {/* Header */}
-    <Header title="EkiView - QRcode Scanner" />
+  useEffect(() => {
+    if (cameraStream) {
+      const videoElement = document.getElementById("video");
+      if (videoElement) {
+        videoElement.srcObject = cameraStream;
+      }
+    }
+  }, [cameraStream]);
 
-    {/* Main Content */}
-    <div style={styles.mainContent}>
-      {cameraPermission === null ? ( // 権限チェック中
-        <p>Checking camera permissions...</p>
-      ) : cameraPermission === false ? ( // カメラが許可されていない場合
-        <>
-          <p style={styles.error}>Camera permission is not granted.</p>
-          <button onClick={requestCameraPermission} style={styles.button}>
-            Allow Camera Access
-          </button>
-        </>
-      ) : (
-        <>
-          <video id="video" style={styles.video}></video>
-          {redirecting ? (
-            <p style={styles.redirecting}>Redirecting...</p>
-          ) : (
-            <p style={styles.error}>{error}</p>
-          )}
-        </>
-      )}
-    </div>
+  return (
+    <div style={styles.page}>
+      {/* Header */}
+      <Header title="EkiView - QRcode Scanner" />
+
+      {/* Main Content */}
+      <div style={styles.mainContent}>
+        {cameraPermission === null ? ( // 権限チェック中
+          <p>Checking camera permissions...</p>
+        ) : cameraPermission === false ? ( // カメラが許可されていない場合
+          <>
+            <p style={styles.error}>Camera permission is not granted</p>
+            <button onClick={requestCameraPermission} style={styles.button}>
+              Allow Camera Access
+            </button>
+          </>
+        ) : (
+          <>
+            <video id="video" style={styles.video}></video>
+            {redirecting ? (
+              <p style={styles.redirecting}>Scan Success!</p>
+            ) : (
+              <p style={styles.guide}>{guide}</p>
+            )}
+          </>
+        )}
+      </div>
       {/* Footer */}
       <Footer />
     </div>
@@ -154,25 +164,34 @@ const QRCodeReader = () => {
 };
 
 const styles = {
-  container: {
+  page: {
+    fontFamily: "Arial, sans-serif",
+    display: "flex",
+    flexDirection: "column",
+    height: "100vh",
+  },
+  mainContent: {
+    flex: 1,
+    padding: "20px",
     textAlign: "center",
-    marginTop: "50px",
+    marginTop: "60px",
   },
   video: {
     width: "auto",
-    maxWidth: "500px",
-    height: "360px",
+    maxWidth: "90%",
     margin: "20px auto",
-    border: "1px solid #ccc",
   },
   error: {
     color: "red",
-    fontSize: "32px",
+    fontSize: "20px",
   },
   redirecting: {
     color: "green",
-    fontSize: "32px",
-    fontWeight: "bold",
+    fontSize: "20px",
+  },
+  guide: {
+    color: "gray",
+    fontSize: "20px",
   },
   button: {
     padding: "10px 20px",

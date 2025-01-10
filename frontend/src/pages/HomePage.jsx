@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSearch from "../hook/useSearch";
-import usePlaceSuggestions from "../hook/Placesearch";
+import { usePlaceSuggestions, usePlaceDetails } from "../hook/Placesearch";
 import Header from "../components/Header";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
@@ -9,32 +9,17 @@ import Footer from "../components/Footer";
 import useFetchQrData from "../hook/useFetchQrData"; // 作成したカスタムフックをインポート
 
 const HomePage = () => {
-  const [currentLocation, setCurrentLocation] = useState(""); // 現在地の状態 // 現在地の状態
-  const [destination, setDestination] = useState(""); // 目的地の状態
-  const [isLocationDisabled, setIsLocationDisabled] = useState(false); // 入力フィールドの無効化状態 // 目的地の状態
+  const [currentLocation, setCurrentLocation] = useState("");
+  const [currentLocationText, setCurrentLocationText] = useState("");
+  const [destination, setDestination] = useState("");
+  const [destinationText, setDestinationText] = useState("");
   const [hoverIndex, setHoverIndex] = useState(null);
   const [originPanorama, setOriginPanorama] = useState("");
   const { suggestions, fetchSuggestions, resetSuggestions } = usePlaceSuggestions();
-
-  const [originPanorama, setOriginPanorama] = useState("");
-  const { suggestions, fetchSuggestions } = usePlaceSuggestions();
+  const { originDetails, destinationDetails, fetchPlaceDetails } = usePlaceDetails();
   const { results, error, search } = useSearch();
-
   const location = useLocation(); // 現在のURL情報を取得
   const navigate = useNavigate(); // useNavigate フックを取得
-  
-  // セッションチェックのロジック
-  useEffect(() => {
-    const validateSession = async () => {
-      const isSessionValid = await checkSession();
-      if (!isSessionValid) {
-        // セッションが無効の場合、localStorage をクリアし、ログイン画面にリダイレクト
-        localStorage.clear();
-      }
-    };
-
-    validateSession();
-  }, [navigate]);
 
   // クエリパラメータから qr_id を取得
   const params = new URLSearchParams(location.search);
@@ -43,11 +28,52 @@ const HomePage = () => {
   // qr_id に基づいて place_id を取得するカスタムフック
   const placeId = useFetchQrData(qrId);
 
-  // place_id がある場合、currentLocation に特定のテキストを設定し、入力フィールドを無効化
+  // リロード時に、現在のクエリパラメータから place_id を取得して currentLocationText に設定
+  useEffect(() => {
+    const fetchOriginPlaceDetailsAsync = async () => {
+      const currentUrl = new URL(window.location.href);
+      const originPlaceId = currentUrl.searchParams.get("origin_place_id");
+  
+      // originPlaceId があれば details を取得して currentLocationText を設定
+      if (originPlaceId) {
+        await fetchPlaceDetails({ placeId: originPlaceId, mode: "origin" });
+        setCurrentLocationText(originDetails);
+      }
+    };
+  
+    fetchOriginPlaceDetailsAsync();
+  }, [originDetails]);
+
+  useEffect(() => {
+    const fetchDestinationPlaceDetailsAsync = async () => {
+      const currentUrl = new URL(window.location.href);
+      const destinationPlaceId = currentUrl.searchParams.get("destination_place_id");
+  
+      if (destinationPlaceId) {
+        await fetchPlaceDetails({ placeId: destinationPlaceId, mode: "destination" });
+        setDestinationText(destinationDetails);
+      }
+    };
+  
+    fetchDestinationPlaceDetailsAsync();
+  }, [destinationDetails]);
+
   useEffect(() => {
     if (placeId) {
-      setCurrentLocation("QRコードで指定された場所"); // place_id があればこのテキストに変更
-      setIsLocationDisabled(true); // 入力フィールドを無効化
+      setCurrentLocation(placeId);
+
+      const fetchOriginPlaceDetailsAsync = async () => {
+        const currentUrl = new URL(window.location.href);
+        const originPlaceId = currentUrl.searchParams.get("origin_place_id");
+    
+        // originPlaceId があれば details を取得して currentLocationText を設定
+        if (originPlaceId) {
+          await fetchPlaceDetails({ placeId: originPlaceId, mode: "origin" });
+          setCurrentLocationText(originDetails);
+        }
+      };
+    
+      fetchOriginPlaceDetailsAsync();
     }
   }, [placeId]);
 
@@ -57,16 +83,8 @@ const HomePage = () => {
     }
   }, [currentLocation, destination]);
 
-  // 初期化時にlocalStorageから値を取得
   useEffect(() => {
-    const savedDestination = localStorage.getItem("destination");
-    if (savedDestination) {
-      setDestination(savedDestination);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (error && currentLocation !== "QRコードで指定された場所") {
+    if (error) {
       alert("Failed to search route. Please try again.");
     } else if (results.length !== 0) {
       navigate('/route', {
@@ -77,39 +95,22 @@ const HomePage = () => {
       });
     }
   }, [results, error]);
-  
-  // ページ離脱時にlocalStorageにdestinationを保存
-  useEffect(() => {
-    return () => {
-      if (destination) {
-        localStorage.setItem("destination", destination);
-      }
-    };
-  }, [destination]);
 
   const handleDestinationInputChange = async (e) => {
     const inputValue = e.target.value;
-    setDestination(inputValue);
+    setDestinationText(inputValue);
     if (inputValue.length >= 3) {
       await fetchSuggestions(inputValue); // 3文字以上でサジェスト取得
     }
   };
 
   const handleSuggestionSelect = (suggestion) => {
-    setDestination(suggestion.mainText);
-    const currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.set("destination_place_id", suggestion.placeId);
-    window.history.pushState({}, "", currentUrl.toString());
+    setDestinationText(suggestion.mainText);
+    const queryParams = new URLSearchParams(location.search);
+    queryParams.set("destination_place_id", suggestion.placeId);
+    navigate(`/home?${queryParams.toString()}`);
     resetSuggestions();
   };
-
-  // place_id がある場合、currentLocation に特定のテキストを設定し、入力フィールドを無効化
-  useEffect(() => {
-    if (placeId) {
-      setCurrentLocation("QRコードで指定された場所"); // place_id があればこのテキストに変更
-      setIsLocationDisabled(true); // 入力フィールドを無効化
-    }
-  }, [placeId]);
 
   const handleScanQRCode = () => {
     // 現在のURLからクエリパラメータを取得
@@ -152,9 +153,8 @@ const HomePage = () => {
           <small style={styles.hintText}>Type name of facility near your current location</small>
           <InputField
             placeholder="Enter Current Location"
-            value={currentLocation} // currentLocation に設定された値を表示
-            onChange={(e) => setCurrentLocation(e.target.value)}
-            disabled={isLocationDisabled} // `place_id` があれば入力不可にする
+            value={currentLocationText}
+            onChange={(e) => setCurrentLocationText(e.target.value)}
           />
           <small style={styles.hintText}>Or Scan QR Code to find your current location</small>
           <Button text="Scan QR Code" onClick={handleScanQRCode} style={styles.qrButton} />
@@ -168,7 +168,7 @@ const HomePage = () => {
           <small style={styles.hintText}>Type text to search your destination</small>
           <InputField
             placeholder="Enter Your Destination"
-            value={destination}
+            value={destinationText}
             onChange={handleDestinationInputChange}
           />
           {suggestions.length > 0 && (

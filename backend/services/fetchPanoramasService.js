@@ -120,6 +120,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
   
 
   let i = 0;
+  let highAngleDetectedCount = 0;
   while (i < route['all_polyline'].length - 1) {
     if (!update) {
       const cpaMetadata = await tilesApiMetadataService(sessionToken, cpaId);
@@ -195,6 +196,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
       cpoCartesian = exitpoCartesian;
       cpaId = bestConnection.connected_panorama_id;
       i = entrypoIndex;
+      console.log("階段あり, 次のパノラマID: ", cpaId);
       continue;
     }
     let minScore = Infinity;
@@ -216,7 +218,12 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
       break;
     }
     // If the selected angle difference is too high, the route is likely incorrect, so backtrack
-    if (minScore > 80 && cpaLinks.length > 1) {
+    if (minScore > 110 && cpaLinks.length > 1) {
+      highAngleDetectedCount++;
+      if (highAngleDetectedCount > 10) {
+        console.warn("High angle difference detected, so stop searching");
+        break;
+      }
       console.warn("High angle difference detected, backtracking...");
       panoramaIds.pop();
       panoramaHeadings.pop();
@@ -229,6 +236,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
     routeStepIdsInPanoramaIds.push(i);
     cpaId = npaId;
     cpoCartesian = npoCartesian;
+    console.log("階段なし, 次のパノラマID: ", cpaId);
   };
 
   return { 

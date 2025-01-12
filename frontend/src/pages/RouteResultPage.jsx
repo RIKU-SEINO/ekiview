@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Button from "../components/Button";
-import StreetView from "../partials/StreetViewPartial";
+import StreetViewPartial from "../partials/StreetViewPartial";
 import RouteInformationPartial from "../partials/RouteInformationPartial";
 
 const RouteResultPage = () => {
@@ -46,7 +46,7 @@ const RouteResultPage = () => {
           />
         </div>
         { activeView === "streetView" ? (
-          <StreetView results={results} originPanorama={originPanorama} />
+          <StreetViewPartial results={results} originPanorama={originPanorama} />
         ) : (
           <RouteInformationPartial results={results} />
         )}

@@ -1,4 +1,5 @@
-const directionsApiService = require('../services/googlemapsRouteSearchService');
+const { directionsApiService, transformRoutesService } = require('../services/googlemapsRouteSearchService');
+const { fetchAllPanoramasAlongRouteService, constructStreetviewUrls } = require('../services/fetchPanoramasService');
 
 /**
  * Controller to call Google Maps Directions API
@@ -49,36 +50,29 @@ exports.routeSearch = async (req, res) => {
   };
 
   try {
-    const response = await directionsApiService.directionsApiService(searchParams);
+    const response = await directionsApiService(searchParams);
     const { routes, status } = response;
-    console.log(response);
 
     // Check if the response is successful
     if (status !== 'OK' || !routes || routes.length === 0) {
       throw new Error('Failed to get route information');
     }
 
-    // 出力形式を変換
-    const transformedRoutes = routes.map(route => ({
-      overview_polyline: {
-        points: decodePolyline(route.overview_polyline.points)
-      },
-      legs: route.legs.map(leg => ({
-        distance: leg.distance,
-        duration: leg.duration,
-        steps: leg.steps.map(step => ({
-          distance: step.distance,
-          duration: step.duration,
-          end_location: step.end_location,
-          html_instructions: step.html_instructions,
-          polyline: {
-            points: decodePolyline(step.polyline.points)
-          },
-          start_location: step.start_location,
-          travel_mode: step.travel_mode
-        }))
-      }))
-    }));
+    let transformedRoutes = transformRoutesService(routes);
+    const isInsideBuilding = transformedRoutes[0].is_inside_building;
+    if (!isInsideBuilding) {
+      throw new Error('Route is outside of the building');
+    }
+
+    const currentPanoramaId = req.query.currentPanoramaId;
+    const panoramas =  await fetchAllPanoramasAlongRouteService(transformedRoutes[0], currentPanoramaId);
+    const panoramaIds = panoramas.panoramaIds;
+    const panoramaHeadings = panoramas.panoramaHeadings;
+    const routeStepIdsInPanoramaIds = panoramas.routeStepIdsInPanoramaIds;
+    const streetviewUrls = await constructStreetviewUrls(panoramaIds, panoramaHeadings);
+    transformedRoutes[0].streetviewUrls = streetviewUrls;
+    transformedRoutes[0].headings = panoramaHeadings;
+    transformedRoutes[0].routeStepIdsInPanoramaIds = routeStepIdsInPanoramaIds;
 
     res.status(200).json({
       routes: transformedRoutes,
@@ -86,47 +80,4 @@ exports.routeSearch = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}
-
-/**
- * Decodes an encoded polyline string into an array of coordinates.
- *
- * @param {string} encoded - The encoded polyline string.
- * @returns {Array<Object>} An array of decoded coordinates (latitude and longitude).
- * 
- * @see https://stackoverflow.com/questions/15924834/decoding-polyline-with-new-google-maps-api
- */
-const decodePolyline = (encoded) => {
-  let index = 0;
-  const length = encoded.length;
-  const coordinates = [];
-  let lat = 0;
-  let lng = 0;
-
-  while (index < length) {
-    let shift = 0;
-    let result = 0;
-    let byte;
-    do {
-      byte = encoded.charCodeAt(index++) - 63;
-      result |= (byte & 0x1f) << shift;
-      shift += 5;
-    } while (byte >= 0x20);
-    const deltaLat = (result & 1) ? ~(result >> 1) : (result >> 1);
-    lat += deltaLat;
-
-    shift = 0;
-    result = 0;
-    do {
-      byte = encoded.charCodeAt(index++) - 63;
-      result |= (byte & 0x1f) << shift;
-      shift += 5;
-    } while (byte >= 0x20);
-    const deltaLng = (result & 1) ? ~(result >> 1) : (result >> 1);
-    lng += deltaLng;
-
-    coordinates.push({ lat: lat / 1e5, lng: lng / 1e5 });
-  }
-
-  return coordinates;
 };

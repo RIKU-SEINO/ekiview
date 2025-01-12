@@ -5,9 +5,6 @@ const RouteInformationPartial = ({ results }) => {
   const route = routeCandidates[0];
   const steps = route.legs[0].steps;
 
-  console.log("↓ルート情報のJSON");
-  console.log(route);
-
   return (
     <div>
       <div>
@@ -22,7 +19,9 @@ const RouteInformationPartial = ({ results }) => {
                 }}
               >
                 <strong>Step {index + 1}:</strong>{" "}
-                <span dangerouslySetInnerHTML={{ __html: step.html_instructions }}></span>
+                <span>
+                  {step.html_instructions.replace(/<\/?b>/g, "")}
+                </span>
               </li>
               {index < steps.length - 1 && <hr style={{ border: "1px solid #ccc" }} />}
             </React.Fragment>

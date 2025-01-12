@@ -20,7 +20,12 @@ export default ({ mode }) => {
         }
       },
     },
-    plugins: [react()],
+    plugins: [
+      react()
+    ],
+    optimizeDeps: {
+      include: ['react-zxing'], // react-zxing を依存関係として事前にバンドル
+    },
     define: {
       'process.env': env,
     },

@@ -1,4 +1,5 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const { Qrcode } = require('./models');
 const qrcodeRoutes = require('./routes/qrcodeRoutes');
@@ -8,10 +9,12 @@ const routeSearchRoutes = require('./routes/routeSearchRoutes');
 const app = express();
 
 app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use('/api', qrcodeRoutes);
-app.use('/api', placeSearchRoutes);
+app.use('/api/placesearch', placeSearchRoutes);
 app.use('/api/routes', routeSearchRoutes);
 
 app.get('/api/greet', async (req, res) => {

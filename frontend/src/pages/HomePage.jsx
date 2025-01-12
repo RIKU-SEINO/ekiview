@@ -1,21 +1,146 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router-dom";
+import useSearch from "../hook/useSearch";
+import { usePlaceSuggestions, usePlaceDetails } from "../hook/Placesearch";
 import Header from "../components/Header";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 import Footer from "../components/Footer";
+import LoadingOverlay from "../components/LoadingOverlay";
+import useFetchQrData from "../hook/useFetchQrData"; // 作成したカスタムフックをインポート
 
 const HomePage = () => {
   const { t } = useTranslation();
   const [currentLocation, setCurrentLocation] = useState("");
+  const [currentLocationText, setCurrentLocationText] = useState("");
   const [destination, setDestination] = useState("");
+  const [destinationText, setDestinationText] = useState("");
+  const [hoverIndex, setHoverIndex] = useState(null);
+  const [originPanorama, setOriginPanorama] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { suggestions, fetchSuggestions, resetSuggestions } = usePlaceSuggestions();
+  const { originDetails, destinationDetails, fetchPlaceDetails } = usePlaceDetails();
+  const { results, error, search } = useSearch();
+  const location = useLocation(); // 現在のURL情報を取得
+  const navigate = useNavigate(); // useNavigate フックを取得
 
-  const handleScanQRCode = () => {
-    alert("QR Code scanning feature is under development.");
+  // クエリパラメータから qr_id を取得
+  const params = new URLSearchParams(location.search);
+  const qrId = params.get("qr_id");
+
+  // qr_id に基づいて place_id を取得するカスタムフック
+  const placeId = useFetchQrData(qrId);
+
+  // リロード時に、現在のクエリパラメータから place_id を取得して currentLocationText に設定
+  useEffect(() => {
+    const fetchOriginPlaceDetailsAsync = async () => {
+      const currentUrl = new URL(window.location.href);
+      const originPlaceId = currentUrl.searchParams.get("origin_place_id");
+  
+      // originPlaceId があれば details を取得して currentLocationText を設定
+      if (originPlaceId) {
+        await fetchPlaceDetails({ placeId: originPlaceId, mode: "origin" });
+        setCurrentLocationText(originDetails);
+      }
+    };
+  
+    fetchOriginPlaceDetailsAsync();
+  }, [originDetails]);
+
+  useEffect(() => {
+    const fetchDestinationPlaceDetailsAsync = async () => {
+      const currentUrl = new URL(window.location.href);
+      const destinationPlaceId = currentUrl.searchParams.get("destination_place_id");
+  
+      if (destinationPlaceId) {
+        await fetchPlaceDetails({ placeId: destinationPlaceId, mode: "destination" });
+        setDestinationText(destinationDetails);
+      }
+    };
+  
+    fetchDestinationPlaceDetailsAsync();
+  }, [destinationDetails]);
+
+  useEffect(() => {
+    if (placeId) {
+      setCurrentLocation(placeId);
+
+      const fetchOriginPlaceDetailsAsync = async () => {
+        const currentUrl = new URL(window.location.href);
+        const originPlaceId = currentUrl.searchParams.get("origin_place_id");
+    
+        // originPlaceId があれば details を取得して currentLocationText を設定
+        if (originPlaceId) {
+          await fetchPlaceDetails({ placeId: originPlaceId, mode: "origin" });
+          setCurrentLocationText(originDetails);
+        }
+      };
+    
+      fetchOriginPlaceDetailsAsync();
+    }
+  }, [placeId]);
+
+  useEffect(() => {
+    if (currentLocation && destination) {
+      setLoading(true);
+      search(currentLocation, destination, originPanorama).finally(() => {
+        setLoading(false);
+      }); 
+    }
+  }, [currentLocation, destination]);
+
+  useEffect(() => {
+    if (error) {
+      alert("Failed to search route. Please try again.");
+    } else if (results.length !== 0) {
+      navigate('/route', {
+        state: {
+          results,
+          originPanorama,
+        },
+      });
+    }
+  }, [results, error]);
+
+  const handleDestinationInputChange = async (e) => {
+    const inputValue = e.target.value;
+    setDestinationText(inputValue);
+    if (inputValue.length >= 3) {
+      await fetchSuggestions(inputValue); // 3文字以上でサジェスト取得
+    }
   };
 
+  const handleSuggestionSelect = (suggestion) => {
+    setDestinationText(suggestion.mainText);
+    const queryParams = new URLSearchParams(location.search);
+    queryParams.set("destination_place_id", suggestion.placeId);
+    navigate(`/home?${queryParams.toString()}`);
+    resetSuggestions();
+  };
+
+  const handleScanQRCode = () => {
+    // 現在のURLからクエリパラメータを取得
+    const queryParams = new URLSearchParams(location.search);
+  
+    // 新しいURLにクエリパラメータを付加して遷移
+    navigate(`/qrcodereader?${queryParams.toString()}`);
+  };
+  
+
   const handleSearchRoute = () => {
-    alert("Route search feature is under development.");
+    const queryParams = new URLSearchParams(location.search);
+    const originPlaceId = queryParams.get("origin_place_id");
+    const destinationPlaceId = queryParams.get("destination_place_id");
+    const originPanoramaId = queryParams.get("origin_panorama_id");
+
+    if (!originPlaceId || !destinationPlaceId || !originPanoramaId) {
+      alert("Please enter your current location and destination.");
+      return;
+    };
+    setCurrentLocation(originPlaceId);
+    setDestination(destinationPlaceId);
+    setOriginPanorama(originPanoramaId);
   };
 
   return (
@@ -33,9 +158,9 @@ const HomePage = () => {
           </div>
           <small style={styles.hintText}>{t('Type name of facility near your current location')}</small>
           <InputField
-            placeholder={t('Enter Current Location')}
-            value={destination}
-            onChange={(e) => setCurrentLocation(e.target.value)}
+            placeholder="Enter Current Location"
+            value={currentLocationText}
+            onChange={(e) => setCurrentLocationText(e.target.value)}
           />
           <small style={styles.hintText}>{t('Or Scan QR Code to find your current location')}</small>
           <Button text={t('Scan QR Code')} onClick={handleScanQRCode} style={styles.qrButton} />
@@ -48,10 +173,27 @@ const HomePage = () => {
           </div>
           <small style={styles.hintText}>{t('Type text to search your destination')}</small>
           <InputField
-            placeholder={t('Enter Your Destination')}
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
+            placeholder="Enter Your Destination"
+            value={destinationText}
+            onChange={handleDestinationInputChange}
           />
+          {suggestions.length > 0 && (
+        <ul style={styles.suggestionsList}>
+            {suggestions.map((suggestion, index) => (
+            <li key={index} style={{
+              ...styles.suggestionItem,
+              ...(hoverIndex === index ? styles.suggestionItemHover : {}),
+            }}
+             onMouseEnter={() => setHoverIndex(index)} // ホバー時
+             onMouseLeave={() => setHoverIndex(null)}
+             onClick={() => handleSuggestionSelect(suggestion)}>
+              <strong>{suggestion.mainText}</strong>
+              <br/>
+              <small>{suggestion.secondaryText}</small>
+            </li>
+            ))}
+        </ul>
+          )}
         </div>
 
         {/* Search Button */}
@@ -59,6 +201,9 @@ const HomePage = () => {
           <Button text={t('Search Route')} onClick={handleSearchRoute} style={styles.searchButton} />
         </div>
       </div>
+
+      {/* Loading Spinner */}
+      {loading && <LoadingOverlay />}
 
       {/* Footer */}
       <Footer />
@@ -84,6 +229,7 @@ const styles = {
     margin: "0 auto",
     width: "80%",
     textAlign: "left",
+    position: "relative"
   },
   descriptionField: {
     marginBottom: "-20px",
@@ -111,7 +257,29 @@ const styles = {
     color: "gray",
     fontSize: "12px",
   },
+  suggestionsList: {
+    listStyleType: "none", // 点を省略
+    padding: 0,
+    margin: "0px auto",
+    maxHeight: "200px", // スクロール領域の高さを指定
+    overflowY: "auto",
+    position: "absolute",
+    backgroundColor: "#fff",
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+    zIndex: 1,
+  },
+  suggestionItem: {
+    border: "1px solid #ccc", // 枠を追加
+    padding: "10px",
+    margin: 0,
+    backgroundColor: "#fff",
+    //textAlign: "center",
+    //width: "100%",
+    transition: "background-color 0.2s",
+  },
+  suggestionItemHover: {
+    backgroundColor: "#f0f0f0",
+  },
 };
 
 export default HomePage;
-

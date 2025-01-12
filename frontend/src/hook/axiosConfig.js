@@ -5,6 +5,8 @@ const apiPort = 5001;
 const baseURL = `http://${host}:${apiPort}`;
 
 const axiosInstance = axios.create({
-  baseURL: baseURL,
+  // baseURLはバックエンドAPIに接続するように修正
+  baseURL: baseURL, 
+  timeout: 5000
 });
 export default axiosInstance;

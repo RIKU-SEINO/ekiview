@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const placeSearchController = require('../controllers/placeSearchController');
 
-// TODO: 目的地検索を行うエンドポイントへのルーティングを実装
+router.get('/autocomplete', placeSearchController.autocompleteHandler);
+router.get('/details', placeSearchController.placeDetailsHandler);
 
 module.exports = router;

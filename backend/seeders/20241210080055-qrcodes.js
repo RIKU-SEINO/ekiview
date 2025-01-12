@@ -1,21 +1,31 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
+const csv = require('csv-parser');
+
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkInsert('qrcodes', [
-      {
-        place_id: 'ChIJn8hH6fuLGGARvhUirnza1u0',//東京駅, NewDaysミニ 東ホ3AのPlaceID
-        panorama_id: 'UiCQ_t9VKpXnIIeB4gTGmQ',//東京駅, NewDaysミニ 東ホ3AのパノラマID
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-      {
-        place_id: 'ChIJ5yuSzsaLGGARA5M1HqiKxqU',//東京駅, 駅たびコンシェルジュ(丸の内北口)のPlaceID
-        panorama_id: 'T3AAkDdJM1eIb9lLsY7bEA',//東京駅, 駅たびコンシェルジュ(丸の内北口)のパノラマID
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-    ], {});
+  up: async (queryInterface) => {
+    const csvFilePath = path.join(__dirname, '..', 'data', '202412311759-qrcode_table.csv');
+    const records = [];
+
+    const readCsv = () => {
+      return new Promise((resolve, reject) => {
+        fs.createReadStream(csvFilePath)
+          .pipe(csv())
+          .on('data', (row) => {
+            records.push({
+              place_id: row.place_id,
+              panorama_id: row.panorama_id,
+            });
+          })
+          .on('end', resolve)
+          .on('error', reject);
+      });
+    }
+
+    await readCsv();
+    await queryInterface.bulkInsert('qrcodes', records);
   },
 
   down: async (queryInterface) => {

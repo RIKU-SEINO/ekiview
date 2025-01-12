@@ -9,6 +9,9 @@ services:
       PG_USER: ${PG_USER}
       PG_PASSWORD: ${PG_PASSWORD}
       PG_DB: ${PG_DB}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -16,6 +19,7 @@ services:
       - 5001:5001
     depends_on:
       - db
+      - redis
     networks:
       - app-network
 
@@ -36,6 +40,21 @@ services:
     networks:
       - app-network
 
+  redis:
+    hostname: redis
+    container_name: redis
+    image: redis:alpine
+    restart: always
+    environment:
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    volumes:
+      - redis-store:/data
+    networks:
+      - app-network
+
   frontend:
     container_name: frontend
     hostname: frontend
@@ -50,6 +69,7 @@ services:
 
 volumes:
   db-store:
+  redis-store:
 
 networks:
   app-network:

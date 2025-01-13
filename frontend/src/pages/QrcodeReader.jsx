@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import i18n from "../i18n";
 import { BrowserMultiFormatReader } from "@zxing/library";
 import { useLocation, useNavigate } from "react-router-dom";  
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 const QRCodeReader = () => {
+  const { t } = useTranslation();
   const [scannedResult, setScannedResult] = useState(null);
   const [error, setError] = useState(null);
   const [guide, setGuide] = useState("Scan QR code");
@@ -13,6 +16,13 @@ const QRCodeReader = () => {
   const [cameraStream, setCameraStream] = useState(null);  // カメラのストリームを保存
 
   const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.language) {
+      i18n.changeLanguage(location.state.language);
+    }
+  }, [location.state]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,7 +65,7 @@ const QRCodeReader = () => {
         videoInputDevices.length > 0 ? videoInputDevices[0].deviceId : null;
 
       if (!selectedDeviceId) {
-        setError("No camera devices found.");
+        setError(t('No camera devices found.'));
         return;
       }
 
@@ -76,16 +86,16 @@ const QRCodeReader = () => {
             });
 
             setTimeout(() => {
-              navigate("/home?" + currentQueryParams.toString());
-              window.location.reload();
+              navigate("/home?"+ currentQueryParams.toString(),{ state: { language: i18n.language } });
+              // window.location.reload();
             }, 1000);
           }
         } else if (err) {
-          setGuide("Scan QR code");
+          setGuide(t('Scan QR code'));
         }
       });
     } catch (err) {
-      setError("Error initializing QR code reader: " + err.message);
+      setError(t('Error initializing QR code reader:')+ " " + err.message);
     }
   };
 
@@ -108,7 +118,7 @@ const QRCodeReader = () => {
       setCameraPermission(true);
       handleQRCodeRead();
     } catch (err) {
-      setError("Camera permission denied.");
+      setError(t('Camera permission denied.'));
     }
   };
 
@@ -138,19 +148,19 @@ const QRCodeReader = () => {
       {/* Main Content */}
       <div style={styles.mainContent}>
         {cameraPermission === null ? ( // 権限チェック中
-          <p>Checking camera permissions...</p>
+          <p>{t('Checking camera permissions...')}</p>
         ) : cameraPermission === false ? ( // カメラが許可されていない場合
           <>
-            <p style={styles.error}>Camera permission is not granted</p>
+            <p style={styles.error}>{t('Camera permission is not granted')}</p>
             <button onClick={requestCameraPermission} style={styles.button}>
-              Allow Camera Access
+              {t('Allow Camera Access')}
             </button>
           </>
         ) : (
           <>
             <video id="video" style={styles.video}></video>
             {redirecting ? (
-              <p style={styles.redirecting}>Scan Success!</p>
+              <p style={styles.redirecting}>{t('Scan Success!')}</p>
             ) : (
               <p style={styles.guide}>{guide}</p>
             )}

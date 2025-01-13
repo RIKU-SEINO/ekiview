@@ -92,7 +92,7 @@ const HomePage = () => {
 
   useEffect(() => {
     if (error) {
-      alert("Failed to search route. Please try again.");
+      alert(t('Failed to search route. Please try again.'));
     } else if (results.length !== 0) {
       navigate('/route', {
         state: {
@@ -135,7 +135,7 @@ const HomePage = () => {
     const originPanoramaId = queryParams.get("origin_panorama_id");
 
     if (!originPlaceId || !destinationPlaceId || !originPanoramaId) {
-      alert("Please enter your current location and destination.");
+      alert(t('Please enter your current location and destination.'));
       return;
     };
     setCurrentLocation(originPlaceId);
@@ -158,7 +158,7 @@ const HomePage = () => {
           </div>
           <small style={styles.hintText}>{t('Type name of facility near your current location')}</small>
           <InputField
-            placeholder="Enter Current Location"
+            placeholder={t('Enter Current Location')}
             value={currentLocationText}
             onChange={(e) => setCurrentLocationText(e.target.value)}
           />
@@ -173,7 +173,7 @@ const HomePage = () => {
           </div>
           <small style={styles.hintText}>{t('Type text to search your destination')}</small>
           <InputField
-            placeholder="Enter Your Destination"
+            placeholder={t('Enter Your Destination')}
             value={destinationText}
             onChange={handleDestinationInputChange}
           />

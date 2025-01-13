@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Slider, Box } from "@mui/material";
+import { t } from "i18next";
 
 const StreetViewPartial = ({ results, originalPanorama }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -37,7 +39,7 @@ const StreetViewPartial = ({ results, originalPanorama }) => {
         lineHeight: "1.5",
       }}
     >
-      {currentIndex == totalImages - 3 ? "End of Route" : allInstructions[routeStepIdsInPanoramaIds[currentIndex]].replace(/<\/?b>/g, "")}
+      {currentIndex == totalImages - 3 ? t('End of Route') : allInstructions[routeStepIdsInPanoramaIds[currentIndex]].replace(/<\/?b>/g, "")}
     </div>
       {/* 現在の画像を表示 */}
       <img

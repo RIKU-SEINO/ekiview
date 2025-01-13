@@ -8,6 +8,19 @@
     "2. Search Destination": "2. 搜索目的地",
     "Type text to search your destination": "输入文本以搜索您的目的地",
     "Enter Your Destination": "输入您的目的地",
-    "Search Route": "搜索路线"
+    "Search Route": "搜索路线",
+    "Street View": "街景",
+    "Route Information": "路线信息",
+    "No camera devices found.": "未找到摄像头设备。",
+    "Scan QR code": "扫描二维码",
+    "Error initializing QR code reader:": "初始化二维码阅读器时出错：",
+    "Camera permission denied.": "相机权限被拒绝。",
+    "Checking camera permissions...": "检查相机权限...",
+    "Camera permission is not granted.": "未授予相机权限。",
+    "Allow Camera Access": "允许相机访问",
+    "Scan Success!": "扫描成功！",
+    "Please enter your current location and destination.": "请输入您的当前位置和目的地。",
+    "Failed to search route. Please try again.": "无法搜索路线。请重试。",
+    "End of Route": "路线结束"
   }
   

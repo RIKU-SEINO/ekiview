@@ -8,6 +8,19 @@
     "2. Search Destination": "2. Buscar destino",
     "Type text to search your destination": "Escriba texto para buscar su destino",
     "Enter Your Destination": "Ingrese su destino",
-    "Search Route": "Buscar ruta"
+    "Search Route": "Buscar ruta",
+    "Street View": "Vista de la calle",
+    "Route Information": "Información de la ruta",
+    "No camera devices found.": "No se encontraron dispositivos de cámara.",
+    "Scan QR code": "Escanear código QR",
+    "Error initializing QR code reader:": "Error al inicializar el lector de códigos QR:",
+    "Camera permission denied.": "Permiso de cámara denegado.",
+    "Checking camera permissions...": "Comprobando permisos de cámara...",
+    "Camera permission is not granted.": "No se otorgó el permiso de cámara.",
+    "Allow Camera Access": "Permitir acceso a la cámara",
+    "Scan Success!": "¡Éxito al escanear!",
+    "Please enter your current location and destination.": "Ingrese su ubicación actual y destino.",
+    "Failed to search route. Please try again.": "No se pudo buscar la ruta. Inténtelo de nuevo.",
+    "End of Route": "Fin de la ruta"
   }
   

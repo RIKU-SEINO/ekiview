@@ -8,6 +8,19 @@
     "2. Search Destination": "2. 목적지 검색",
     "Type text to search your destination": "목적지를 검색하려면 텍스트를 입력하세요",
     "Enter Your Destination": "목적지를 입력하세요",
-    "Search Route": "경로 검색"
+    "Search Route": "경로 검색",
+    "Street View": "거리 보기",
+    "Route Information": "경로 정보",
+    "No camera devices found.": "카메라 장치를 찾을 수 없습니다.",
+    "Scan QR code": "QR 코드 스캔",
+    "Error initializing QR code reader:": "QR 코드 리더 초기화 오류:",
+    "Camera permission denied.": "카메라 권한이 거부되었습니다.",
+    "Checking camera permissions...": "카메라 권한 확인 중...",
+    "Camera permission is not granted.": "카메라 권한이 부여되지 않았습니다.",
+    "Allow Camera Access": "카메라 액세스 허용",
+    "Scan Success!": "스캔 성공!",
+    "Please enter your current location and destination.": "현재 위치와 목적지를 입력하세요.",
+    "Failed to search route. Please try again.": "경로 검색에 실패했습니다. 다시 시도하세요.",
+    "End of Route": "경로 끝"
   }
   

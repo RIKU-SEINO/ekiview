@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -7,6 +8,7 @@ import StreetViewPartial from "../partials/StreetViewPartial";
 import RouteInformationPartial from "../partials/RouteInformationPartial";
 
 const RouteResultPage = () => {
+  const { t } = useTranslation();  
   const location = useLocation();
   const { results, originPanorama } = location.state;
   const [activeView, setActiveView] = useState("streetView");
@@ -27,7 +29,7 @@ const RouteResultPage = () => {
       <div style={styles.mainContent}>
         <div style={styles.btnContainerFlex}>
           <Button
-            text="Street View"
+            text={t('Street View')}
             onClick={switchToStreetView}
             style={{
               ...styles.button,
@@ -36,7 +38,7 @@ const RouteResultPage = () => {
             }}
           />
           <Button
-            text="Route Information"
+            text={t('Route Information')}
             onClick={switchToRouteInformation}
             style={{
               ...styles.button,

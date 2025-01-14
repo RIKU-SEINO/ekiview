@@ -14,15 +14,7 @@ const QRCodeReader = () => {
   const [redirecting, setRedirecting] = useState(false);
   const [cameraPermission, setCameraPermission] = useState(null);
   const [cameraStream, setCameraStream] = useState(null);  // カメラのストリームを保存
-
   const location = useLocation();
-
-  useEffect(() => {
-    if (location.state?.language) {
-      i18n.changeLanguage(location.state.language);
-    }
-  }, [location.state]);
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -86,8 +78,8 @@ const QRCodeReader = () => {
             });
 
             setTimeout(() => {
-              navigate("/home?"+ currentQueryParams.toString(),{ state: { language: i18n.language } });
-              // window.location.reload();
+              navigate("/home?"+ currentQueryParams.toString());
+              window.location.reload();
             }, 1000);
           }
         } else if (err) {

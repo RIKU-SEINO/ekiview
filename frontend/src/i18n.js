@@ -3,10 +3,10 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 import en from './locales/en.json';
 import ja from './locales/ja.json';
-import ch from './locales/ch.json';
+import zh from './locales/zh.json';
 import fr from './locales/fr.json';
 import ko from './locales/ko.json';
-import sp from './locales/sp.json';
+import es from './locales/es.json';
 
 i18n
   .use(LanguageDetector)
@@ -24,14 +24,13 @@ i18n
     ko: {
       translation: ko,
     },
-    sp: {
-      translation: sp,
+    es: {
+      translation: es,
     },
-    ch: {
-      translation: ch,
+    zh: {
+      translation: zh,
     },    
   },
-  lng: "en",
   fallbackLng: "en",
   detection: {
     order: ["localStorage", "navigator"],

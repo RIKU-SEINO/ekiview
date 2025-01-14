@@ -27,9 +27,9 @@ const SettingsPage = () => {
         <div style={styles.languageButtons}>
           <Button text='English' onClick={() => handleLanguageChange('en')} style={styles.languageButton} />
           <Button text='Japanese' onClick={() => handleLanguageChange('ja')} style={styles.languageButton} />
-          <Button text='Chinese' onClick={() => handleLanguageChange('ch')} style={styles.languageButton} />
+          <Button text='Chinese' onClick={() => handleLanguageChange('zh')} style={styles.languageButton} />
           <Button text='Korean'onClick={() => handleLanguageChange('ko')} style={styles.languageButton} />
-          <Button text='Spanish' onClick={() => handleLanguageChange('sp')} style={styles.languageButton} />
+          <Button text='Spanish' onClick={() => handleLanguageChange('es')} style={styles.languageButton} />
           <Button text='French' onClick={() => handleLanguageChange('fr')} style={styles.languageButton} />
         </div>
       </div>

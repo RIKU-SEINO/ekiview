@@ -41,7 +41,8 @@ const HomePage = () => {
   
       // originPlaceId があれば details を取得して currentLocationText を設定
       if (originPlaceId) {
-        await fetchPlaceDetails({ placeId: originPlaceId, mode: "origin" });
+        const language = localStorage.getItem("i18nextLng") || "en";
+        await fetchPlaceDetails({ placeId: originPlaceId, mode: "origin", language: language });
         setCurrentLocationText(originDetails);
       }
     };
@@ -55,7 +56,8 @@ const HomePage = () => {
       const destinationPlaceId = currentUrl.searchParams.get("destination_place_id");
   
       if (destinationPlaceId) {
-        await fetchPlaceDetails({ placeId: destinationPlaceId, mode: "destination" });
+        const language = localStorage.getItem("i18nextLng") || "en";
+        await fetchPlaceDetails({ placeId: destinationPlaceId, mode: "destination", language: language });
         setDestinationText(destinationDetails);
       }
     };
@@ -85,7 +87,8 @@ const HomePage = () => {
   useEffect(() => {
     if (currentLocation && destination) {
       setLoading(true);
-      search(currentLocation, destination, originPanorama).finally(() => {
+      const language = localStorage.getItem("i18nextLng") || "en";
+      search(currentLocation, destination, originPanorama, language).finally(() => {
         setLoading(false);
       }); 
     }
@@ -110,7 +113,8 @@ const HomePage = () => {
   
     if (inputValue.length >= 3) {
       try{
-        await fetchCurrentLocationSuggestions(inputValue);
+        const language = localStorage.getItem("i18nextLng") || "en";
+        await fetchCurrentLocationSuggestions(inputValue, language);
     } catch (error) {
       console.error("Failed to fetch suggestions:", error);
     }
@@ -122,7 +126,8 @@ const HomePage = () => {
     setDestinationText(inputValue);
     if (inputValue.length >= 3) {
       try{
-        await fetchDestinationSuggestions(inputValue);
+        const language = localStorage.getItem("i18nextLng") || "en";
+        await fetchDestinationSuggestions(inputValue, language);
     }catch (error) {
       console.error("Failed to fetch suggestions:", error);
     }

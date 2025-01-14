@@ -56,8 +56,8 @@ const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
  * @see https://developers.google.com/maps/documentation/directions/get-directions?hl=ja
  */
 exports.directionsApiService = async (searchParams) => {
-  const { origin, destination, mode } = searchParams;
-  const directionsUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=place_id:${origin}&destination=place_id:${destination}&mode=${mode}&key=${GOOGLE_MAPS_API_KEY}`;
+  const { origin, destination, mode, language } = searchParams;
+  const directionsUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=place_id:${origin}&destination=place_id:${destination}&mode=${mode}&key=${GOOGLE_MAPS_API_KEY}&language=${language}`;
 
   try {
     const response = await axios.get(directionsUrl);

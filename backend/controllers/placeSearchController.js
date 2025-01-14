@@ -1,7 +1,7 @@
 const googleMapsService = require('../services/googlemapsService');
 
 exports.autocompleteHandler = async (req, res) => {
-  const { input, sessionToken: existingSessionToken } = req.query;
+  const { input, language, sessionToken: existingSessionToken } = req.query;
 
   // Step 1: Generate or use provided session token
   const sessionToken = existingSessionToken || googleMapsService.generateUUID();
@@ -15,6 +15,7 @@ exports.autocompleteHandler = async (req, res) => {
     // Step 3: Call Google Maps Place Autocomplete API
     const autocompleteSuggestions = await googleMapsService.callPlaceAutocompleteAPI(
       input,
+      language,
       sessionToken
     );
 
@@ -28,11 +29,11 @@ exports.autocompleteHandler = async (req, res) => {
 };
 
 exports.placeDetailsHandler = async (req, res) => {
-  const { place_id } = req.query;
+  const { place_id, language } = req.query;
 
   try {
     // Call Google Maps Place Details API
-    const placeDetails = await googleMapsService.callPlaceDetailsAPI(place_id);
+    const placeDetails = await googleMapsService.callPlaceDetailsAPI(place_id, language);
 
     res.status(200).json({
       placeDetails,

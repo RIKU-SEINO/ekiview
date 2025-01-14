@@ -5,9 +5,9 @@ export const usePlaceSuggestions = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [error, setError] = useState(null);
 
-  const fetchSuggestions = async (input) => {
+  const fetchSuggestions = async (input, language) => {
     try {
-      const response = await axios.get(`/api/placesearch/autocomplete?input=${input}`);
+      const response = await axios.get(`/api/placesearch/autocomplete?input=${input}&language=${language}`);
       const predictions = response.data.autocompleteSuggestions.predictions || [];
       const data = predictions.map((place) => ({
         placeId: place.place_id,
@@ -33,9 +33,9 @@ export const usePlaceDetails = () => {
   const [destinationDetails, setDestinationDetails] = useState("");
   const [error, setError] = useState(null);
 
-  const fetchPlaceDetails = async ({placeId, mode}) => {
+  const fetchPlaceDetails = async ({placeId, mode, language}) => {
     try {
-      const response = await axios.get(`/api/placesearch/details?place_id=${placeId}`);
+      const response = await axios.get(`/api/placesearch/details?place_id=${placeId}&language=${language}`);
       if (mode === "origin") {
         setOriginDetails(response.data.placeDetails.result.name);
       } else {

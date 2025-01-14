@@ -3,16 +3,30 @@ import React from 'react';
 const RouteInformationPartial = ({ results }) => {
   const routeCandidates = results.routes;
   const route = routeCandidates[0];
-
-  console.log("↓ルート情報のJSON")
-  console.log(route);
+  const steps = route.legs[0].steps;
 
   return (
     <div>
-      <h2>Route Information</h2>
       <div>
-        <p>Distance: {route.legs[0].distance.text}</p>
-        <p>Duration: {route.legs[0].duration.text}</p>
+        <ul style={{ paddingLeft: 0, listStyleType: "none" }}>
+          {steps.map((step, index) => (
+            <React.Fragment key={index}>
+              <li
+                style={{
+                  textAlign: "left",
+                  marginBottom: "8px",
+                  fontSize: "18px",
+                }}
+              >
+                <strong>Step {index + 1}:</strong>{" "}
+                <span>
+                  {step.html_instructions.replace(/<\/?b>/g, "")}
+                </span>
+              </li>
+              {index < steps.length - 1 && <hr style={{ border: "1px solid #ccc" }} />}
+            </React.Fragment>
+          ))}
+        </ul>
       </div>
     </div>
   );

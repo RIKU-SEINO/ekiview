@@ -18,8 +18,9 @@ const HomePage = () => {
   const [destinationText, setDestinationText] = useState("");
   const [hoverIndex, setHoverIndex] = useState(null);
   const [originPanorama, setOriginPanorama] = useState("");
+  const { suggestions: currentLocationSuggestions, fetchSuggestions: fetchCurrentLocationSuggestions, resetSuggestions: resetCurrentLocationSuggestions } = usePlaceSuggestions();
+  const { suggestions: destinationSuggestions, fetchSuggestions: fetchDestinationSuggestions, resetSuggestions: resetDestinationSuggestions } = usePlaceSuggestions();
   const [loading, setLoading] = useState(false);
-  const { suggestions, fetchSuggestions, resetSuggestions } = usePlaceSuggestions();
   const { originDetails, destinationDetails, fetchPlaceDetails } = usePlaceDetails();
   const { results, error, search } = useSearch();
   const location = useLocation(); // 現在のURL情報を取得
@@ -46,7 +47,7 @@ const HomePage = () => {
     };
   
     fetchOriginPlaceDetailsAsync();
-  }, [originDetails]);
+  }, [originDetails]); 
 
   useEffect(() => {
     const fetchDestinationPlaceDetailsAsync = async () => {
@@ -103,12 +104,38 @@ const HomePage = () => {
     }
   }, [results, error]);
 
+  const handleCurrentLocationInputChange = async (e) => {
+    const inputValue = e.target.value;
+    setCurrentLocationText(inputValue);
+  
+    if (inputValue.length >= 3) {
+      try{
+        await fetchCurrentLocationSuggestions(inputValue);
+    } catch (error) {
+      console.error("Failed to fetch suggestions:", error);
+    }
+  }
+  };
+
   const handleDestinationInputChange = async (e) => {
     const inputValue = e.target.value;
     setDestinationText(inputValue);
     if (inputValue.length >= 3) {
-      await fetchSuggestions(inputValue); // 3文字以上でサジェスト取得
+      try{
+        await fetchDestinationSuggestions(inputValue);
+    }catch (error) {
+      console.error("Failed to fetch suggestions:", error);
     }
+  }
+  };
+
+  const handleCurrentLocationSuggestionSelect = (suggestion) => {
+    setCurrentLocationText(suggestion.mainText);
+  
+    const queryParams = new URLSearchParams(location.search);
+    queryParams.set("origin_place_id", suggestion.placeId);
+    navigate(`/home?${queryParams.toString()}`);
+    resetCurrentLocationSuggestions();
   };
 
   const handleSuggestionSelect = (suggestion) => {
@@ -116,7 +143,7 @@ const HomePage = () => {
     const queryParams = new URLSearchParams(location.search);
     queryParams.set("destination_place_id", suggestion.placeId);
     navigate(`/home?${queryParams.toString()}`);
-    resetSuggestions();
+    resetDestinationSuggestions();
   };
 
   const handleScanQRCode = () => {
@@ -160,8 +187,28 @@ const HomePage = () => {
           <InputField
             placeholder={t('Enter Current Location')}
             value={currentLocationText}
-            onChange={(e) => setCurrentLocationText(e.target.value)}
+            onChange={handleCurrentLocationInputChange}
           />
+          {currentLocationSuggestions.length > 0 && (
+    <ul style={styles.suggestionsList}>
+      {currentLocationSuggestions.map((suggestion, index) => (
+        <li
+          key={index}
+          style={{
+            ...styles.suggestionItem,
+            ...(hoverIndex === index ? styles.suggestionItemHover : {}),
+          }}
+          onMouseEnter={() => setHoverIndex(index)}
+          onMouseLeave={() => setHoverIndex(null)}
+          onClick={() => handleCurrentLocationSuggestionSelect(suggestion)}
+        >
+          <strong>{suggestion.mainText}</strong>
+          <br />
+          <small>{suggestion.secondaryText}</small>
+        </li>
+        ))}
+      </ul>
+    )}
           <small style={styles.hintText}>{t('Or Scan QR Code to find your current location')}</small>
           <Button text={t('Scan QR Code')} onClick={handleScanQRCode} style={styles.qrButton} />
         </div>
@@ -177,9 +224,9 @@ const HomePage = () => {
             value={destinationText}
             onChange={handleDestinationInputChange}
           />
-          {suggestions.length > 0 && (
+          {destinationSuggestions.length > 0 && (
         <ul style={styles.suggestionsList}>
-            {suggestions.map((suggestion, index) => (
+            {destinationSuggestions.map((suggestion, index) => (
             <li key={index} style={{
               ...styles.suggestionItem,
               ...(hoverIndex === index ? styles.suggestionItemHover : {}),

@@ -1,0 +1,27 @@
+{
+    "selectLanguage": "言語を選択",
+    "1. Find Current Location": "1. 現在地を特定する",
+    "Type name of facility near your current location": "現在地付近の施設名を入力してください",
+    "Enter Current Location": "現在地を入力",
+    "Or Scan QR Code to find your current location": "QRコードをスキャンして現在地を特定する",
+    "Scan QR Code": "QRコードをスキャン",
+    "2. Search Destination": "2. 行き先を検索",
+    "Type text to search your destination": "行き先を検索するためにテキストを入力してください",
+    "Enter Your Destination": "行き先を入力",
+    "Search Route": "ルートを検索",
+    "Street View": "ストリートビュー",
+    "Route Information": "ルート情報",
+    "No camera devices found.": "カメラデバイスが見つかりません。",
+    "Scan QR code": "QRコードをスキャン",
+    "Error initializing QR code reader:": "QRコードリーダーの初期化エラー：",
+    "Camera permission denied.": "カメラの許可が拒否されました。",
+    "Checking camera permissions...": "カメラの許可を確認中...",
+    "Camera permission is not granted.": "カメラの許可が付与されていません。",
+    "Allow Camera Access": "カメラアクセスを許可",
+    "Scan Success!": "スキャン成功！",
+    "Please enter your current location and destination.": "現在地と行き先を入力してください。",
+    "Failed to search route. Please try again.": "ルートの検索に失敗しました。もう一度お試しください。",
+    "End of Route": "ルートの終わり"
+  }
+  
+  

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSearch from "../hook/useSearch";
 import { usePlaceSuggestions, usePlaceDetails } from "../hook/Placesearch";
@@ -10,6 +11,7 @@ import LoadingOverlay from "../components/LoadingOverlay";
 import useFetchQrData from "../hook/useFetchQrData"; // 作成したカスタムフックをインポート
 
 const HomePage = () => {
+  const { t } = useTranslation();
   const [currentLocation, setCurrentLocation] = useState("");
   const [currentLocationText, setCurrentLocationText] = useState("");
   const [destination, setDestination] = useState("");
@@ -39,7 +41,8 @@ const HomePage = () => {
   
       // originPlaceId があれば details を取得して currentLocationText を設定
       if (originPlaceId) {
-        await fetchPlaceDetails({ placeId: originPlaceId, mode: "origin" });
+        const language = localStorage.getItem("i18nextLng") || "en";
+        await fetchPlaceDetails({ placeId: originPlaceId, mode: "origin", language: language });
         setCurrentLocationText(originDetails);
       }
     };
@@ -53,7 +56,8 @@ const HomePage = () => {
       const destinationPlaceId = currentUrl.searchParams.get("destination_place_id");
   
       if (destinationPlaceId) {
-        await fetchPlaceDetails({ placeId: destinationPlaceId, mode: "destination" });
+        const language = localStorage.getItem("i18nextLng") || "en";
+        await fetchPlaceDetails({ placeId: destinationPlaceId, mode: "destination", language: language });
         setDestinationText(destinationDetails);
       }
     };
@@ -83,7 +87,8 @@ const HomePage = () => {
   useEffect(() => {
     if (currentLocation && destination) {
       setLoading(true);
-      search(currentLocation, destination, originPanorama).finally(() => {
+      const language = localStorage.getItem("i18nextLng") || "en";
+      search(currentLocation, destination, originPanorama, language).finally(() => {
         setLoading(false);
       }); 
     }
@@ -91,7 +96,7 @@ const HomePage = () => {
 
   useEffect(() => {
     if (error) {
-      alert("Failed to search route. Please try again.");
+      alert(t('Failed to search route. Please try again.'));
     } else if (results.length !== 0) {
       navigate('/route', {
         state: {
@@ -108,7 +113,8 @@ const HomePage = () => {
   
     if (inputValue.length >= 3) {
       try{
-        await fetchCurrentLocationSuggestions(inputValue);
+        const language = localStorage.getItem("i18nextLng") || "en";
+        await fetchCurrentLocationSuggestions(inputValue, language);
     } catch (error) {
       console.error("Failed to fetch suggestions:", error);
     }
@@ -120,7 +126,8 @@ const HomePage = () => {
     setDestinationText(inputValue);
     if (inputValue.length >= 3) {
       try{
-        await fetchDestinationSuggestions(inputValue);
+        const language = localStorage.getItem("i18nextLng") || "en";
+        await fetchDestinationSuggestions(inputValue, language);
     }catch (error) {
       console.error("Failed to fetch suggestions:", error);
     }
@@ -160,7 +167,7 @@ const HomePage = () => {
     const originPanoramaId = queryParams.get("origin_panorama_id");
 
     if (!originPlaceId || !destinationPlaceId || !originPanoramaId) {
-      alert("Please enter your current location and destination.");
+      alert(t('Please enter your current location and destination.'));
       return;
     };
     setCurrentLocation(originPlaceId);
@@ -179,11 +186,11 @@ const HomePage = () => {
         {/* Current Location */}
         <div style={styles.subContent}>
           <div style={styles.descriptionField}>
-            <h4>1. Find Current Location</h4>
+            <h4>{t('1. Find Current Location')}</h4>
           </div>
-          <small style={styles.hintText}>Type name of facility near your current location</small>
+          <small style={styles.hintText}>{t('Type name of facility near your current location')}</small>
           <InputField
-            placeholder="Enter Current Location"
+            placeholder={t('Enter Current Location')}
             value={currentLocationText}
             onChange={handleCurrentLocationInputChange}
           />
@@ -207,18 +214,18 @@ const HomePage = () => {
         ))}
       </ul>
     )}
-          <small style={styles.hintText}>Or Scan QR Code to find your current location</small>
-          <Button text="Scan QR Code" onClick={handleScanQRCode} style={styles.qrButton} />
+          <small style={styles.hintText}>{t('Or Scan QR Code to find your current location')}</small>
+          <Button text={t('Scan QR Code')} onClick={handleScanQRCode} style={styles.qrButton} />
         </div>
 
         {/* Destination */}
         <div style={styles.subContent}>
           <div style={styles.descriptionField}>
-            <h4>2. Search Destination</h4>
+            <h4>{t('2. Search Destination')}</h4>
           </div>
-          <small style={styles.hintText}>Type text to search your destination</small>
+          <small style={styles.hintText}>{t('Type text to search your destination')}</small>
           <InputField
-            placeholder="Enter Your Destination"
+            placeholder={t('Enter Your Destination')}
             value={destinationText}
             onChange={handleDestinationInputChange}
           />
@@ -243,7 +250,7 @@ const HomePage = () => {
 
         {/* Search Button */}
         <div style={styles.subContent}>
-          <Button text="Search Route" onClick={handleSearchRoute} style={styles.searchButton} />
+          <Button text={t('Search Route')} onClick={handleSearchRoute} style={styles.searchButton} />
         </div>
       </div>
 

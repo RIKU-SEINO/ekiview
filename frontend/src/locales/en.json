@@ -1,0 +1,26 @@
+{
+    "selectLanguage": "Select Language",
+    "1. Find Current Location": "1. Find Current Location",
+    "Type name of facility near your current location": "Type name of facility near your current location",
+    "Enter Current Location": "Enter Current Location",
+    "Or Scan QR Code to find your current location": "Or Scan QR Code to find your current location",
+    "Scan QR Code": "Scan QR Code",
+    "2. Search Destination": "2. Search Destination",
+    "Type text to search your destination": "Type text to search your destination",
+    "Enter Your Destination": "Enter Your Destination",
+    "Search Route": "Search Route",
+    "Street View": "Street View",
+    "Route Information": "Route Information",
+    "No camera devices found.": "No camera devices found.",
+    "Scan QR code": "Scan QR code",
+    "Error initializing QR code reader:": "Error initializing QR code reader:",
+    "Camera permission denied.": "Camera permission denied.",
+    "Checking camera permissions...": "Checking camera permissions...",
+    "Camera permission is not granted.": "Camera permission is not granted.",
+    "Allow Camera Access": "Allow Camera Access",
+    "Scan Success!": "Scan Success!",
+    "Please enter your current location and destination.": "Please enter your current location and destination.",
+    "Failed to search route. Please try again.": "Failed to search route. Please try again.",
+    "End of Route": "End of Route"
+  }
+  

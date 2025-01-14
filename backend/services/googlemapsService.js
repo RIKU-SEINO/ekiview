@@ -42,8 +42,8 @@ const generateUUID = () => {
  * @param {string} sessionToken - A session token for the request
  * @returns {Promise<Object>} - API response
  */
-const callPlaceAutocompleteAPI = async (input, sessionToken) => {
-  const autocompleteUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${input}&key=${GOOGLE_MAPS_API_KEY}&sessiontoken=${sessionToken}`;
+const callPlaceAutocompleteAPI = async (input, language, sessionToken) => {
+  const autocompleteUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${input}&key=${GOOGLE_MAPS_API_KEY}&sessiontoken=${sessionToken}&language=${language}&locationbias=ipbias`;
 
   try {
     const response = await axios.get(autocompleteUrl);
@@ -59,8 +59,8 @@ const callPlaceAutocompleteAPI = async (input, sessionToken) => {
  * @param {string} placeId - A place ID for the request
  * @returns {Promise<Object>} - API response
  */
-const callPlaceDetailsAPI = async (placeId) => {
-  const placeDetailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?fields=name&place_id=${placeId}&key=${GOOGLE_MAPS_API_KEY}`;
+const callPlaceDetailsAPI = async (placeId, language) => {
+  const placeDetailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?fields=name&place_id=${placeId}&key=${GOOGLE_MAPS_API_KEY}&language=${language}`;
 
   try {
     const response = await axios.get(placeDetailsUrl);

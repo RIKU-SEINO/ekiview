@@ -46,7 +46,8 @@ exports.routeSearch = async (req, res) => {
   const searchParams = {
     origin: req.query.origin,
     destination: req.query.destination,
-    mode: 'walking'
+    mode: 'walking',
+    language: req.query.language,
   };
 
   try {

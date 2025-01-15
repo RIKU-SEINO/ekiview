@@ -23,7 +23,7 @@ const RouteInformationPartial = ({ results }) => {
               >
                 <strong>Step {index + 1}:</strong>{" "}
                 <span>
-                  {step.html_instructions.replace(/<\/?b>/g, "")}
+                  {step.html_instructions.replace(/<.*?>/g, " ")}
                 </span>
               </li>
               {index < steps.length - 1 && <hr style={{ border: "1px solid #ccc" }} />}

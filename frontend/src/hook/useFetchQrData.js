@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from './axiosConfig';
+import axios from '../axiosConfig';
 import { useNavigate, useLocation } from "react-router-dom";
 
 const useFetchQrData = (qrId) => {

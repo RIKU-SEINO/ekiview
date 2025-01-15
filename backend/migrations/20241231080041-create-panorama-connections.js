@@ -25,6 +25,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      building_level: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       building_level_comparison: {
         type: Sequelize.INTEGER,
         allowNull: false

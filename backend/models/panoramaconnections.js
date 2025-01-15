@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     connection_id: DataTypes.INTEGER,
     panorama_id: DataTypes.STRING,
     connected_panorama_id: DataTypes.STRING,
+    building_level: DataTypes.INTEGER,
     building_level_comparison: DataTypes.INTEGER,
     heading: DataTypes.FLOAT,
     panorama_lat: DataTypes.FLOAT,

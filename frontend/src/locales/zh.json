@@ -21,6 +21,10 @@
     "Scan Success!": "扫描成功！",
     "Please enter your current location and destination.": "请输入您的当前位置和目的地。",
     "Failed to search route. Please try again.": "无法搜索路线。请重试。",
-    "End of Route": "路线结束"
+    "End of Route": "路线结束",
+    "Home": "主页",
+    "Language": "语言",
+    "Route Details": "路线详情",
+    "QR Scan": "扫描二维码"
   }
   

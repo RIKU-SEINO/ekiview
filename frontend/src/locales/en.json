@@ -21,6 +21,10 @@
     "Scan Success!": "Scan Success!",
     "Please enter your current location and destination.": "Please enter your current location and destination.",
     "Failed to search route. Please try again.": "Failed to search route. Please try again.",
-    "End of Route": "End of Route"
+    "End of Route": "End of Route",
+    "Home": "Home",
+    "Language": "Language",
+    "Route Details": "Route Details",
+    "QR Scan": "QR Scan"
   }
   

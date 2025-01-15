@@ -21,6 +21,10 @@
     "Scan Success!": "¡Éxito al escanear!",
     "Please enter your current location and destination.": "Ingrese su ubicación actual y destino.",
     "Failed to search route. Please try again.": "No se pudo buscar la ruta. Inténtelo de nuevo.",
-    "End of Route": "Fin de la ruta"
+    "End of Route": "Fin de la ruta",
+    "Home": "Inicio",
+    "Language": "Idioma",
+    "Route Details": "Detalles de la ruta",
+    "QR Scan": "Escanear QR"
   }
   

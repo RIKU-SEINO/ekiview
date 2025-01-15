@@ -21,6 +21,10 @@
     "Scan Success!": "Scan réussi !",
     "Please enter your current location and destination.": "Veuillez entrer votre position actuelle et votre destination.",
     "Failed to search route. Please try again.": "Impossible de rechercher l'itinéraire. Veuillez réessayer.",
-    "End of Route": "Fin de l'itinéraire"
+    "End of Route": "Fin de l'itinéraire",
+    "Home": "Accueil",
+    "Language": "Langue",
+    "Route Details": "Détails de l'itinéraire",
+    "QR Scan": "Scan QR"
   }
   

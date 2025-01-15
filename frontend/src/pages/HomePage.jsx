@@ -8,7 +8,7 @@ import InputField from "../components/InputField";
 import Button from "../components/Button";
 import Footer from "../components/Footer";
 import LoadingOverlay from "../components/LoadingOverlay";
-import useFetchQrData from "../hook/useFetchQrData"; // 作成したカスタムフックをインポート
+import useFetchQrData from "../hook/useFetchQrData";
 
 const HomePage = () => {
   const { t } = useTranslation();
@@ -23,23 +23,18 @@ const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const { originDetails, destinationDetails, fetchPlaceDetails } = usePlaceDetails();
   const { results, error, search } = useSearch();
-  const location = useLocation(); // 現在のURL情報を取得
-  const navigate = useNavigate(); // useNavigate フックを取得
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  // クエリパラメータから qr_id を取得
   const params = new URLSearchParams(location.search);
   const qrId = params.get("qr_id");
-
-  // qr_id に基づいて place_id を取得するカスタムフック
   const placeId = useFetchQrData(qrId);
 
-  // リロード時に、現在のクエリパラメータから place_id を取得して currentLocationText に設定
   useEffect(() => {
     const fetchOriginPlaceDetailsAsync = async () => {
       const currentUrl = new URL(window.location.href);
       const originPlaceId = currentUrl.searchParams.get("origin_place_id");
   
-      // originPlaceId があれば details を取得して currentLocationText を設定
       if (originPlaceId) {
         const language = localStorage.getItem("i18nextLng") || "en";
         await fetchPlaceDetails({ placeId: originPlaceId, mode: "origin", language: language });
@@ -73,7 +68,6 @@ const HomePage = () => {
         const currentUrl = new URL(window.location.href);
         const originPlaceId = currentUrl.searchParams.get("origin_place_id");
     
-        // originPlaceId があれば details を取得して currentLocationText を設定
         if (originPlaceId) {
           await fetchPlaceDetails({ placeId: originPlaceId, mode: "origin" });
           setCurrentLocationText(originDetails);
@@ -152,10 +146,8 @@ const HomePage = () => {
   };
 
   const handleScanQRCode = () => {
-    // 現在のURLからクエリパラメータを取得
     const queryParams = new URLSearchParams(location.search);
-  
-    // 新しいURLにクエリパラメータを付加して遷移
+    
     navigate(`/qrcodereader?${queryParams.toString()}`);
   };
   
@@ -178,7 +170,7 @@ const HomePage = () => {
   return (
     <div style={styles.page}>
       {/* Header */}
-      <Header title="EkiView - Home" />
+      <Header title={`EkiView - ${t('Home')}`} />
 
       {/* Main Content */}
       <div style={styles.mainContent}>

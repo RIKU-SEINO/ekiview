@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import i18n from "../i18n";
 import { BrowserMultiFormatReader } from "@zxing/library";
 import { useLocation, useNavigate } from "react-router-dom";  
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 const QRCodeReader = () => {
   const { t } = useTranslation();
-  const [scannedResult, setScannedResult] = useState(null);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [guide, setGuide] = useState("Scan QR code");
   const [redirecting, setRedirecting] = useState(false);
   const [cameraPermission, setCameraPermission] = useState(null);
@@ -57,7 +56,7 @@ const QRCodeReader = () => {
         videoInputDevices.length > 0 ? videoInputDevices[0].deviceId : null;
 
       if (!selectedDeviceId) {
-        setError(t('No camera devices found.'));
+        alert(t('No camera devices found.'));
         return;
       }
 
@@ -65,10 +64,10 @@ const QRCodeReader = () => {
       codeReader.decodeFromVideoDevice(selectedDeviceId, "video", (result, err) => {
         if (result) {
           const resultText = result.getText();
-          setScannedResult(resultText);
 
           if (isValidUrl(resultText)) {
             setRedirecting(true);
+            setLoading(true);
 
             const url = new URL(resultText);
             const currentQueryParams = new URLSearchParams(location.search);
@@ -80,6 +79,7 @@ const QRCodeReader = () => {
             setTimeout(() => {
               navigate("/home?"+ currentQueryParams.toString());
               window.location.reload();
+              setLoading(false);
             }, 1000);
           }
         } else if (err) {
@@ -87,14 +87,14 @@ const QRCodeReader = () => {
         }
       });
     } catch (err) {
-      setError(t('Error initializing QR code reader:')+ " " + err.message);
+      alert(t('Error initializing QR code reader:')+ " " + err.message);
     }
   };
 
   const stopCamera = () => {
     if (cameraStream) {
       cameraStream.getTracks().forEach((track) => track.stop());
-      setCameraStream(null);  // ストリームをクリア
+      setCameraStream(null);
     }
 
     const videoElement = document.getElementById("video");
@@ -110,7 +110,7 @@ const QRCodeReader = () => {
       setCameraPermission(true);
       handleQRCodeRead();
     } catch (err) {
-      setError(t('Camera permission denied.'));
+      alert(t('Camera permission denied.'));
     }
   };
 
@@ -135,7 +135,7 @@ const QRCodeReader = () => {
   return (
     <div style={styles.page}>
       {/* Header */}
-      <Header title="EkiView - QRcode Scanner" />
+      <Header title={`EkiView - ${t('QR Scan')}`} />
 
       {/* Main Content */}
       <div style={styles.mainContent}>
@@ -159,6 +159,10 @@ const QRCodeReader = () => {
           </>
         )}
       </div>
+
+      {/* Loading Overlay */}
+      {loading && <LoadingOverlay />}
+
       {/* Footer */}
       <Footer />
     </div>

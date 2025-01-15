@@ -23,7 +23,7 @@ const RouteResultPage = () => {
   return (
     <div style={styles.page}>
       {/* Header */}
-      <Header title="EkiView - Route Result" />
+      <Header title={`EkiView - ${t('Route Details')}`} />
 
       {/* Main Content */}
       <div style={styles.mainContent}>
@@ -74,10 +74,10 @@ const styles = {
     marginTop: "60px",
   },
   btnContainerFlex: {
+    marginBottom: "-10px",
     height: "70px",
     display: "flex",
     justifyContent: "center",
-    marginBottom: "20px",
     gap: "10px",
   },
   button: {

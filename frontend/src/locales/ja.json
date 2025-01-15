@@ -1,12 +1,12 @@
 {
     "selectLanguage": "言語を選択",
-    "1. Find Current Location": "1. 現在地を特定する",
-    "Type name of facility near your current location": "現在地付近の施設名を入力してください",
+    "1. Find Current Location": "1. 現在地を検索",
+    "Type name of facility near your current location": "現在地付近の施設名を入力",
     "Enter Current Location": "現在地を入力",
-    "Or Scan QR Code to find your current location": "QRコードをスキャンして現在地を特定する",
+    "Or Scan QR Code to find your current location": "またはQRコードをスキャンし現在地を検索する",
     "Scan QR Code": "QRコードをスキャン",
     "2. Search Destination": "2. 行き先を検索",
-    "Type text to search your destination": "行き先を検索するためにテキストを入力してください",
+    "Type text to search your destination": "テキストを入力し行き先を検索",
     "Enter Your Destination": "行き先を入力",
     "Search Route": "ルートを検索",
     "Street View": "ストリートビュー",
@@ -21,7 +21,11 @@
     "Scan Success!": "スキャン成功！",
     "Please enter your current location and destination.": "現在地と行き先を入力してください。",
     "Failed to search route. Please try again.": "ルートの検索に失敗しました。もう一度お試しください。",
-    "End of Route": "ルートの終わり"
+    "End of Route": "目的地到着",
+    "Home": "ホーム",
+    "Language": "言語選択",
+    "Route Details": "ルート詳細",
+    "QR Scan": "QRコードスキャン"
   }
   
   

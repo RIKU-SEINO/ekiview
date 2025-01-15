@@ -17,6 +17,10 @@ const QRCodeReader = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = `EkiView - ${t('QR Scan')}`;
+  });
+
+  useEffect(() => {
     // ページが開いたらカメラを自動起動
     checkCameraPermission();
 

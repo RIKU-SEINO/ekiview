@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const Contributor = () => {
+  useEffect(() => {
+    document.title = "EkiView - Contributor";
+  });
   return (
     <div style={styles.page}>
       {/* Header */}

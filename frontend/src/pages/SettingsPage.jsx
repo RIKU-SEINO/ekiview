@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import Header from "../components/Header";
 import Button from "../components/Button";
@@ -11,6 +11,10 @@ const SettingsPage = () => {
   const handleLanguageChange = (language) => {
     i18n.changeLanguage(language);
   };
+
+  useEffect(() => {
+    document.title = `EkiView - ${t('Language')}`;
+  });
 
   return (
     <div style={styles.page}>

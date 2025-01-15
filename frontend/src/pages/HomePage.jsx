@@ -31,6 +31,10 @@ const HomePage = () => {
   const placeId = useFetchQrData(qrId);
 
   useEffect(() => {
+    document.title = `EkiView - ${t('Home')}`;
+  });
+
+  useEffect(() => {
     const fetchOriginPlaceDetailsAsync = async () => {
       const currentUrl = new URL(window.location.href);
       const originPlaceId = currentUrl.searchParams.get("origin_place_id");

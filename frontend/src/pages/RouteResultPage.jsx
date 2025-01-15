@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import Header from "../components/Header";
@@ -19,6 +19,10 @@ const RouteResultPage = () => {
   const switchToRouteInformation = () => {
     setActiveView("routeInformation");
   };
+
+  useEffect(() => {
+    document.title = `EkiView - ${t('Route Details')}`;
+  });
 
   return (
     <div style={styles.page}>

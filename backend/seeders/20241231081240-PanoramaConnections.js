@@ -7,7 +7,7 @@ const csv = require('csv-parser');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface) {
-    const csvFilePath = path.join(__dirname, '..', 'data', '202501011834-panorama_connections_table.csv');
+    const csvFilePath = path.join(__dirname, '..', 'data', '202501152106-panorama_connections_table.csv');
     const records = [];
 
     const readCsv = () => {
@@ -20,6 +20,7 @@ module.exports = {
               connection_id: row.connection_id,
               panorama_id: row.panorama_id,
               connected_panorama_id: row.connected_panorama_id,
+              building_level: row.building_level,
               building_level_comparison: row.building_level_comparison,
               heading: row.heading,
               panorama_lat: row.panorama_lat,

@@ -25,6 +25,7 @@
     "Home": "Accueil",
     "Language": "Langue",
     "Route Details": "Détails de l'itinéraire",
-    "QR Scan": "Scan QR"
+    "QR Scan": "Scan QR",
+    "Failed to retrieve street view images for part of the route": "Impossible de récupérer les images de la vue de la rue pour une partie de l'itinéraire"
   }
   

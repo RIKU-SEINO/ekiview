@@ -70,10 +70,12 @@ exports.routeSearch = async (req, res) => {
     const panoramaIds = panoramas.panoramaIds;
     const panoramaHeadings = panoramas.panoramaHeadings;
     const routeStepIdsInPanoramaIds = panoramas.routeStepIdsInPanoramaIds;
+    const sucess = panoramas.success;
     const streetviewUrls = await constructStreetviewUrls(panoramaIds, panoramaHeadings);
     transformedRoutes[0].streetviewUrls = streetviewUrls;
     transformedRoutes[0].headings = panoramaHeadings;
     transformedRoutes[0].routeStepIdsInPanoramaIds = routeStepIdsInPanoramaIds;
+    transformedRoutes[0].success = sucess;
 
     res.status(200).json({
       routes: transformedRoutes,

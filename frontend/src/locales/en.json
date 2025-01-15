@@ -25,6 +25,7 @@
     "Home": "Home",
     "Language": "Language",
     "Route Details": "Route Details",
-    "QR Scan": "QR Scan"
+    "QR Scan": "QR Scan",
+    "Failed to retrieve street view images for part of the route": "Failed to retrieve street view images for part of the route"
   }
   

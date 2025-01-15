@@ -25,7 +25,8 @@
     "Home": "ホーム",
     "Language": "言語選択",
     "Route Details": "ルート詳細",
-    "QR Scan": "QRコードスキャン"
+    "QR Scan": "QRコードスキャン",
+    "Failed to retrieve street view images for part of the route": "経路上の一部でストリートビュー画像の取得に失敗しました"
   }
   
   

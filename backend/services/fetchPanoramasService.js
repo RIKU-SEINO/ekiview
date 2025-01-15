@@ -16,11 +16,13 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
   const sessionToken = await tilesApiGenerateSessionTokenService();
   const panoramaIds = [currentPanoramaId];
   const panoramaHeadings = [];
+  const blacklistedPanoramaIds = [];
   const routeStepIdsInPanoramaIds = [];
   const connectionsIds = [];
   const targetPanoramaIds = []; // ルート上の各ステップで、ターゲットとしているパノラマIDを格納
   let cpaId = currentPanoramaId;
   let update = false;
+  let success = true;
 
   // ルート上で、階段の入り口のパノラマIDを全て取得
   for (let j=0; j<route['all_polyline'].length; j++) {
@@ -39,6 +41,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
           [Op.notIn]: connectionsIds
         },
         building_level_comparison: buildingLevelComparison,
+        building_level: cpoBuildingLevel,
       }
     });
 
@@ -62,6 +65,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
       }
     }
   };
+  console.log("targetPanoramaIds: ", targetPanoramaIds);
 
   // targetPanoramaIdsのuniqueな値を取得
   const supportPanoramaIdsToTargetPanoramaId = {};
@@ -117,10 +121,11 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
       }
     }
   }
+  console.log("supportPanoramaIdsToTargetPanoramaId: ", supportPanoramaIdsToTargetPanoramaId);
   
 
   let i = 0;
-  let highAngleDetectedCount = 0;
+  let backTrackingCount = 0;
   while (i < route['all_polyline'].length - 1) {
     if (!update) {
       const cpaMetadata = await tilesApiMetadataService(sessionToken, cpaId);
@@ -128,6 +133,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
       // Handle empty links
       if (!cpaMetadata.links || cpaMetadata.links.length === 0) {
         console.error("No links available for panorama: ", cpaId);
+        success = false;
         break;
       }
       var cpaCartesian = latLngToXY(cpaMetadata.originalLat, cpaMetadata.originalLng);
@@ -182,6 +188,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
 
       if (bestConnection === null) {
         console.error("No connection found for panorama: ", cpaId);
+        success = false;
         break;
       }
       panoramaIds.push(...support[cpaId]);
@@ -207,23 +214,30 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
       const apaHeadingFromCpa = link.heading;
       const score = calculateAngleDifference(apaHeadingFromCpa, npoHeadingFromCpo);
 
-      if (score < minScore && !panoramaIds.includes(apaId)) {
+      if (score < minScore && !panoramaIds.includes(apaId) && !blacklistedPanoramaIds.includes(apaId)) {
         minScore = score;
         npaId = apaId;
         bestHeading = apaHeadingFromCpa;
       }
     }
+
+    // If no suitable panorama is found, backtrack
     if (npaId == cpaId) {
-      console.error("Panorama Fetch along the route failed");
+      console.error("Panorama Fetch along the route failed, backtracking...");
+      blacklistedPanoramaIds.push(cpaId);
+      panoramaIds.pop();
+      panoramaHeadings.pop();
+      cpaId = panoramaIds[panoramaIds.length - 1];
+      continue;
+    }
+    if (backTrackingCount > 10) {
+      console.warn("High angle difference detected, so stop searching");
+      sucess = false;
       break;
     }
     // If the selected angle difference is too high, the route is likely incorrect, so backtrack
     if (minScore > 110 && cpaLinks.length > 1) {
-      highAngleDetectedCount++;
-      if (highAngleDetectedCount > 10) {
-        console.warn("High angle difference detected, so stop searching");
-        break;
-      }
+      backTrackingCount++;
       console.warn("High angle difference detected, backtracking...");
       panoramaIds.pop();
       panoramaHeadings.pop();
@@ -236,13 +250,14 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
     routeStepIdsInPanoramaIds.push(i);
     cpaId = npaId;
     cpoCartesian = npoCartesian;
-    console.log("階段なし, 次のパノラマID: ", cpaId);
+    console.log("階段なし, 次のパノラマID: "+cpaId+" ターゲットパノラマID: "+targetPanoramaId);
   };
 
   return { 
     panoramaIds: panoramaIds,
     panoramaHeadings: panoramaHeadings,
-    routeStepIdsInPanoramaIds: routeStepIdsInPanoramaIds
+    routeStepIdsInPanoramaIds: routeStepIdsInPanoramaIds,
+    success: success,
   };
 };
 

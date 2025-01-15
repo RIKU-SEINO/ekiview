@@ -26,7 +26,8 @@ const styles = {
   title: {
     margin: 0,
     paddingLeft: "20px",
-    fontSize: "23px",
+    fontFamily: "'Roboto', sans-serif",
+    fontSize: "25px",
   },
   link: {
     textDecoration: "none",

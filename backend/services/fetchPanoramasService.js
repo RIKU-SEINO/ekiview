@@ -22,6 +22,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
   const targetPanoramaIds = []; // ルート上の各ステップで、ターゲットとしているパノラマIDを格納
   let cpaId = currentPanoramaId;
   let update = false;
+  let success = true;
 
   // ルート上で、階段の入り口のパノラマIDを全て取得
   for (let j=0; j<route['all_polyline'].length; j++) {
@@ -132,6 +133,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
       // Handle empty links
       if (!cpaMetadata.links || cpaMetadata.links.length === 0) {
         console.error("No links available for panorama: ", cpaId);
+        success = false;
         break;
       }
       var cpaCartesian = latLngToXY(cpaMetadata.originalLat, cpaMetadata.originalLng);
@@ -186,6 +188,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
 
       if (bestConnection === null) {
         console.error("No connection found for panorama: ", cpaId);
+        success = false;
         break;
       }
       panoramaIds.push(...support[cpaId]);
@@ -229,6 +232,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
     }
     if (backTrackingCount > 10) {
       console.warn("High angle difference detected, so stop searching");
+      sucess = false;
       break;
     }
     // If the selected angle difference is too high, the route is likely incorrect, so backtrack
@@ -252,7 +256,8 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
   return { 
     panoramaIds: panoramaIds,
     panoramaHeadings: panoramaHeadings,
-    routeStepIdsInPanoramaIds: routeStepIdsInPanoramaIds
+    routeStepIdsInPanoramaIds: routeStepIdsInPanoramaIds,
+    success: success,
   };
 };
 

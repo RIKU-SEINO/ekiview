@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Slider, Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+import { useLocation } from "react-router-dom";
 import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
 import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import { MdKeyboardArrowRight } from "react-icons/md";
 import { t } from "i18next";
+import FlashOverlay from "../components/FlashOverlay";
 
 const StreetViewPartial = ({ results, originalPanorama }) => {
   const routeCandidates = results.routes;
@@ -21,9 +23,12 @@ const StreetViewPartial = ({ results, originalPanorama }) => {
   for (let i = 0; i < routeStepIdsInPanoramaIds.length; i++) {
     allInstructionsInPanoramaIds.push(allInstructions[routeStepIdsInPanoramaIds[i]]);
   };
+  const success = route.success;
   
+  const [showFlash, setShowFlash] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentInstruction, setCurrentInstruction] = useState(allInstructions[0]);
+  const location = useLocation();
   const theme = useTheme();
   const color = theme.palette.mode === "dark" ? "white" : "black";
 
@@ -56,6 +61,10 @@ const StreetViewPartial = ({ results, originalPanorama }) => {
   };
 
   const thisYear = new Date().getFullYear();
+
+  useEffect(() => {
+    if (!success) setShowFlash(true);
+  }, [location]);
 
   useEffect(() => {
     if (currentIndex === totalImages - 3) {
@@ -271,6 +280,8 @@ const StreetViewPartial = ({ results, originalPanorama }) => {
         }}
       />
     </Box>
+
+    <FlashOverlay show={showFlash} />
   </Box>
   );
 };

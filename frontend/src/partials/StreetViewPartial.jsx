@@ -26,7 +26,7 @@ const StreetViewPartial = ({ results, originalPanorama }) => {
       sx={{
         position: "relative",
         width: "100%",
-        height: "85%",
+        height: "75%",
         overflow: "hidden",
       }}
     >

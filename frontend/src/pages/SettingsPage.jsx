@@ -7,17 +7,15 @@ import "../i18n.js";
 
 const SettingsPage = () => {
   const { t, i18n } = useTranslation();
-  const [selectedLanguage, setSelectedLanguage] = useState("");
 
   const handleLanguageChange = (language) => {
     i18n.changeLanguage(language);
-    setSelectedLanguage(language);
   };
 
   return (
     <div style={styles.page}>
       {/* Header */}
-      <Header title="EkiView - Languages" />
+      <Header title={`EkiView - ${t('Language')}`} />
 
       {/* Main Content */}
       <div style={styles.mainContent}>
@@ -28,7 +26,7 @@ const SettingsPage = () => {
           <Button text='English' onClick={() => handleLanguageChange('en')} style={styles.languageButton} />
           <Button text='Japanese' onClick={() => handleLanguageChange('ja')} style={styles.languageButton} />
           <Button text='Chinese' onClick={() => handleLanguageChange('zh')} style={styles.languageButton} />
-          <Button text='Korean'onClick={() => handleLanguageChange('ko')} style={styles.languageButton} />
+          <Button text='Korean' onClick={() => handleLanguageChange('ko')} style={styles.languageButton} />
           <Button text='Spanish' onClick={() => handleLanguageChange('es')} style={styles.languageButton} />
           <Button text='French' onClick={() => handleLanguageChange('fr')} style={styles.languageButton} />
         </div>
@@ -51,7 +49,7 @@ const styles = {
     flex: 1,
     padding: "20px",
     textAlign: "center",
-    marginTop: "60px",
+    marginTop: "80px",
   },
   languageButtons: {
     display: "flex",
@@ -67,7 +65,15 @@ const styles = {
     borderRadius: "5px",
     cursor: "pointer",
     padding: "10px 20px",
-    width: "100px"
+    width: "120px",
+    fontSize: "16px",
+  },
+  "@media (max-width: 768px)": {
+    languageButton: {
+      width: "80%",
+      padding: "12px",
+      fontSize: "14px",
+    },
   },
 };
 

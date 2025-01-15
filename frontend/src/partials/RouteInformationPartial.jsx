@@ -7,7 +7,10 @@ const RouteInformationPartial = ({ results }) => {
 
   return (
     <div>
-      <div>
+      <div style={{
+        overflowY: "scroll",
+      }}
+      >
         <ul style={{ paddingLeft: 0, listStyleType: "none" }}>
           {steps.map((step, index) => (
             <React.Fragment key={index}>
@@ -24,6 +27,7 @@ const RouteInformationPartial = ({ results }) => {
                 </span>
               </li>
               {index < steps.length - 1 && <hr style={{ border: "1px solid #ccc" }} />}
+              {index >= steps.length - 1 && <li style={{ textAlign: "left", marginBottom: "8px", fontSize: "18px", height: "50px"}}><span>&nbsp;</span></li>}
             </React.Fragment>
           ))}
         </ul>

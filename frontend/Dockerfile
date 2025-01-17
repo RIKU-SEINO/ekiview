@@ -4,11 +4,11 @@ FROM node:22-slim
 # 作業ディレクトリを設定
 WORKDIR /app
 
-# パッケージ管理ファイルをコピー
-COPY package.json package-lock.json ./
+# package.json と package-lock.json をコピー（もしあれば）
+COPY package.json ./
 
-# 依存関係をインストール
-RUN npm install
+# package-lock.json がない場合、npm install で依存関係をインストール
+RUN npm install --frozen-lockfile || npm install
 
 # ソースコードをコピー
 COPY . .

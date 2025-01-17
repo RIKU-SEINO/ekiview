@@ -14,4 +14,5 @@ frontend/package-lock.json
 
 # .env
 .env
+.env.production
 frontend/.env

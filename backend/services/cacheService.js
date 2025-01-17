@@ -1,7 +1,6 @@
-require('dotenv').config({ path: '../.env' });
 const redis = require('redis');
 const client = redis.createClient({
-  url: `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`,
+  url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
   legacyMode: true
 });
 

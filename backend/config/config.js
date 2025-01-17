@@ -1,5 +1,3 @@
-require('dotenv').config('../.env');
-
 module.exports = {
   development: {
     username: process.env.PG_USER,

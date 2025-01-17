@@ -12,11 +12,14 @@ services:
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT}
       GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
+      TZ: ${TZ}
     volumes:
       - ./backend:/app
       - /app/node_modules
     ports:
-      - 5001:5001
+      - ${API_PORT}:${API_PORT}
+    env_file:
+      - .env
     depends_on:
       - db
       - redis
@@ -37,6 +40,8 @@ services:
       TZ: ${TZ}
     ports:
       - ${PG_PORT}:${PG_PORT}
+    env_file:
+      - .env
     networks:
       - app-network
 
@@ -50,6 +55,8 @@ services:
       REDIS_PORT: ${REDIS_PORT}
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
+    env_file:
+      - .env
     volumes:
       - redis-store:/data
     networks:
@@ -60,10 +67,13 @@ services:
     hostname: frontend
     build: ./frontend
     ports:
-      - 3001:3001
+      - ${VITE_APP_PORT}:${VITE_APP_PORT}
+    env_file:
+      - .env
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - .env:/app/.env
     networks:
       - app-network
 

@@ -5,6 +5,11 @@ console.log("username: ", process.env.PG_USER);
 console.log("database: ", process.env.PG_DB);
 console.log("password: ", process.env.PG_PASSWORD);
 
+const host = process.env.PG_URL.split('@')[1].split(':')[0];
+const port = process.env.PG_URL.split('@')[1].split(':')[1].split('/')[0];
+
+process.env.PG_HOST = host;
+process.env.PG_PORT = port;
 
 module.exports = {
   development: {

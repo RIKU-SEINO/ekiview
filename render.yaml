@@ -35,6 +35,10 @@ services:
           property: database
       - key: TZ
         value: Asia/Singapore
+      - key: PG_URL
+        fromDatabase:
+          name: ekiview-db
+          property: connectionString
       - key: REDIS_HOST
         fromService:
           type: redis

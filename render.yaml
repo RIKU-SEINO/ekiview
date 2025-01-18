@@ -1,0 +1,125 @@
+# previews:
+#   generation: automatic # Enable preview environments
+
+# List all services *except* PostgreSQL databases here
+services:
+  # A web service that builds from a Dockerfile
+  - type: web
+    runtime: docker
+    name: ekiview-api
+    # repo: https://github.com/render-examples/webdis.git # Default: Repo containing render.yaml
+    rootDir: ./backend
+    # dockerCommand: ./webdis.sh # Default: Dockerfile CMD
+    # scaling: # Autoscaling configuration
+    #   minInstances: 1
+    #   maxInstances: 3
+    #   targetMemoryPercent: 60 # Optional if targetCPUPercent is set
+    #   targetCPUPercent: 60    # Optional if targetMemory is set
+    # healthCheckPath: /
+    # registryCredential: # Default: No credential
+    #   fromRegistryCreds:
+    #     name: my-credentials
+    envVars:
+      - key: PG_HOST
+        fromService: # Reference a property from another service (see available properties below)
+          type: postgres
+          name: ekiview-db
+          property: host
+      - key: PG_PORT
+        fromService:
+          type: postgres
+          name: ekiview-db
+          property: port
+      - key: PG_USER
+        fromService:
+          type: postgres
+          name: ekiview-db
+          property: user
+      - key: PG_PASSWORD
+        fromService:
+          type: postgres
+          name: ekiview-db
+          property: password
+      - key: PG_DB
+        fromService:
+          type: postgres
+          name: ekiview-db
+          property: name
+      - key: TZ
+        value: Asia/Singapore
+      - key: REDIS_HOST
+        fromService: # Reference a property from another service (see available properties below)
+          type: redis
+          name: ekiview-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: ekiview-redis
+          property: port
+      - key: GOOGLE_MAPS_API_KEY
+        sync: false
+
+  - type: web
+    runtime: docker
+    name: ekiview
+    rootDir: ./frontend
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://ekiview-api.onrender.com
+      - key: VITE_APP_PORT
+        value: 3001
+      - key: VITE_APP_HOST
+        value: https://ekiview.onrender.com
+
+# A Redis instance
+  - type: redis
+    name: ekiview-redis
+    ipAllowList: # Required
+      - source: 0.0.0.0/0
+        description: everywhere
+    plan: free # Default: starter
+    maxmemoryPolicy: noeviction # Default: allkeys-lru
+    envVars:
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: ekiview-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: ekiview-redis
+          property: port
+
+# List all PostgreSQL databases here
+databases:
+
+  # A database with a read replica
+  - name: ekiview-db
+    plan: free
+    databaseName: ekiview-production
+    user: root
+    # ipAllowList: # Optional (defaults to allow all)
+    #   - source: 203.0.113.4/30
+    #     description: office
+    #   - source: 198.51.100.1
+    #     description: home
+    # readReplicas:
+    #   - name: elephant-replica
+    envVars:
+      - key: POSTGRES_DB
+        fromService:
+          type: postgres
+          name: ekiview-db
+          property: database
+      - key: POSTGRES_USER
+        fromService:
+          type: postgres
+          name: ekiview-db
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromService:
+          type: postgres
+          name: ekiview-db
+          property: password

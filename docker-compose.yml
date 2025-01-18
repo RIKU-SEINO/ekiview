@@ -78,7 +78,6 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-      - .env:/app/.env
     networks:
       - app-network
 

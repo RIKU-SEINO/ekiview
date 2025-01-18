@@ -20,31 +20,18 @@ services:
     #   fromRegistryCreds:
     #     name: my-credentials
     envVars:
-      - key: PG_HOST
-        fromService: # Reference a property from another service (see available properties below)
-          type: postgres
-          name: ekiview-db
-          property: host
-      - key: PG_PORT
-        fromService:
-          type: postgres
-          name: ekiview-db
-          property: port
       - key: PG_USER
-        fromService:
-          type: postgres
+        fromDatabase:
           name: ekiview-db
           property: user
       - key: PG_PASSWORD
-        fromService:
-          type: postgres
+        fromDatabase:
           name: ekiview-db
           property: password
       - key: PG_DB
-        fromService:
-          type: postgres
+        fromDatabase:
           name: ekiview-db
-          property: name
+          property: database
       - key: TZ
         value: Asia/Singapore
       - key: REDIS_HOST

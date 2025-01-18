@@ -80,17 +80,6 @@ services:
         description: everywhere
     plan: free # Default: starter
     maxmemoryPolicy: noeviction # Default: allkeys-lru
-    envVars:
-      - key: REDIS_HOST
-        fromService:
-          type: redis
-          name: ekiview-redis
-          property: host
-      - key: REDIS_PORT
-        fromService:
-          type: redis
-          name: ekiview-redis
-          property: port
 
 # List all PostgreSQL databases here
 databases:
@@ -107,19 +96,3 @@ databases:
     #     description: home
     # readReplicas:
     #   - name: elephant-replica
-    envVars:
-      - key: POSTGRES_DB
-        fromService:
-          type: postgres
-          name: ekiview-db
-          property: database
-      - key: POSTGRES_USER
-        fromService:
-          type: postgres
-          name: ekiview-db
-          property: user
-      - key: POSTGRES_PASSWORD
-        fromService:
-          type: postgres
-          name: ekiview-db
-          property: password

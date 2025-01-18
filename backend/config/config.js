@@ -1,3 +1,6 @@
+console.log('config.js');
+console.log('process.env: ', process.env);
+
 module.exports = {
   development: {
     username: process.env.PG_USER,
@@ -15,7 +18,6 @@ module.exports = {
     host: process.env.PG_HOST,
     dialect: 'postgres',
     port: process.env.PG_PORT,
-    logging: console.log, // ログを有効化
   },
   test: {
     username: process.env.PG_USER,

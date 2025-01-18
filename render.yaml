@@ -74,7 +74,8 @@ databases:
   # A database with a read replica
   - name: ekiview-db
     plan: free
-    databaseName: ekiview-production
+    postgresMajorVersion: "13"
+    databaseName: ekiview_production
     user: root
     # ipAllowList: # Optional (defaults to allow all)
     #   - source: 203.0.113.4/30

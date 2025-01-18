@@ -1,5 +1,4 @@
 console.log('config.js');
-console.log('process.env: ', process.env);
 
 module.exports = {
   development: {

@@ -6,8 +6,7 @@ console.log("database: ", process.env.PG_DB);
 console.log("password: ", process.env.PG_PASSWORD);
 console.log("url: ", process.env.PG_URL);
 
-const host = process.env.PG_URL.split('@')[1].split(':')[0];
-const port = process.env.PG_URL.split('@')[1].split(':')[1].split('/')[0];
+const host = process.env.PG_URL.split('@')[1].split('/')[0];
 
 module.exports = {
   development: {
@@ -25,7 +24,7 @@ module.exports = {
     database: process.env.PG_DB,
     host: process.env.PG_HOST || host,
     dialect: 'postgres',
-    port: process.env.PG_PORT || port,
+    port: process.env.PG_PORT,
   },
   test: {
     username: process.env.PG_USER,

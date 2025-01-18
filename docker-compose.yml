@@ -4,8 +4,6 @@ services:
     container_name: backend
     build: ./backend
     environment:
-      PG_HOST: ${PG_HOST}
-      PG_PORT: ${PG_PORT}
       PG_USER: ${PG_USER}
       PG_PASSWORD: ${PG_PASSWORD}
       PG_DB: ${PG_DB}

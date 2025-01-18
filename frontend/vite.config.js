@@ -1,31 +1,28 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
+import replace from '@rollup/plugin-replace';
 
-export default ({ mode }) => {
-  process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
 
-  console.log('VITE_APP_PORT:', process.env.VITE_APP_PORT);
-  console.log('VITE_APP_HOST:', process.env.VITE_APP_HOST);
-  console.log('VITE_API_BASE_URL:', process.env.VITE_API_BASE_URL);
-  console.log('VITE_API_BASE_URL_STRING:', JSON.stringify(process.env.VITE_API_BASE_URL));
-
-  return defineConfig({
+  console.log('VITE_API_BASE_URL:', env.VITE_API_BASE_URL);
+  return {
     server: {
       host: true,
-      port: process.env.VITE_APP_PORT,
+      port: env.VITE_APP_PORT,
       hmr: {
-        host: process.env.VITE_APP_HOST,
-        clientPort: process.env.VITE_APP_PORT,
+        host: env.VITE_APP_HOST,
+        clientPort: env.VITE_APP_PORT,
       },
     },
     plugins: [
-      react()
+      react(),
+      replace({
+        'process.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL),
+      }),
     ],
     optimizeDeps: {
       include: ['react-zxing'],
     },
-    define: {
-      'process.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_BASE_URL),
-    },
-  });
-};
+  };
+});

@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react-swc';
 
 export default defineConfig(({ mode }) => {
   const env = { ...process.env, ...loadEnv(mode, process.cwd()) };
+  const baseURL = env.VITE_API_BASE_URL || 'https://ekiview-backend.onrender.com';
 
   return {
     server: {
@@ -18,7 +19,7 @@ export default defineConfig(({ mode }) => {
       include: ['react-zxing'],
     },
     define: {
-      'process.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL) || 'https://ekiview-backend.onrender.com'
+      'process.env.VITE_API_BASE_URL': JSON.stringify(baseURL),
     },
   };
 });

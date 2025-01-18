@@ -7,6 +7,7 @@ services:
   - type: web
     runtime: docker
     name: ekiview-api
+    plan: free
     # repo: https://github.com/render-examples/webdis.git # Default: Repo containing render.yaml
     rootDir: ./backend
     # dockerCommand: ./webdis.sh # Default: Dockerfile CMD
@@ -50,6 +51,7 @@ services:
   - type: web
     runtime: docker
     name: ekiview
+    plan: free
     rootDir: ./frontend
     envVars:
       - key: VITE_API_BASE_URL

@@ -15,7 +15,7 @@ module.exports = {
     host: process.env.PG_HOST,
     dialect: 'postgres',
     port: process.env.PG_PORT,
-    timezone: process.env.TZ || 'Asia/Tokyo'
+    logging: console.log, // ログを有効化
   },
   test: {
     username: process.env.PG_USER,

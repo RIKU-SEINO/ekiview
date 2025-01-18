@@ -20,7 +20,7 @@ export default ({ mode }) => {
       include: ['react-zxing'],
     },
     define: {
-      '__VITE_API_BASE_URL__': JSON.stringify(process.env.VITE_API_BASE_URL),
+      __VITE_API_BASE_URL__: JSON.stringify(process.env.VITE_API_BASE_URL),
     },
   });
 };

@@ -1,11 +1,9 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-import replace from '@rollup/plugin-replace';
 
 export default defineConfig(({ mode }) => {
   const env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
-  console.log('VITE_API_BASE_URL:', env.VITE_API_BASE_URL);
   return {
     server: {
       host: true,
@@ -15,14 +13,12 @@ export default defineConfig(({ mode }) => {
         clientPort: env.VITE_APP_PORT,
       },
     },
-    plugins: [
-      react(),
-      replace({
-        'process.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL),
-      }),
-    ],
+    plugins: [react()],
     optimizeDeps: {
       include: ['react-zxing'],
+    },
+    define: {
+      'process.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL) || 'https://ekiview-backend.onrender.com'
     },
   };
 });

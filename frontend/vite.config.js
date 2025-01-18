@@ -4,6 +4,11 @@ import react from '@vitejs/plugin-react-swc';
 export default ({ mode }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
+  console.log('VITE_APP_PORT:', process.env.VITE_APP_PORT);
+  console.log('VITE_APP_HOST:', process.env.VITE_APP_HOST);
+  console.log('VITE_API_BASE_URL:', process.env.VITE_API_BASE_URL);
+  console.log('VITE_API_BASE_URL_STRING:', JSON.stringify(process.env.VITE_API_BASE_URL));
+
   return defineConfig({
     server: {
       host: true,

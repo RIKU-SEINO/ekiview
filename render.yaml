@@ -6,7 +6,7 @@ services:
   # A web service that builds from a Dockerfile
   - type: web
     runtime: docker
-    name: ekiview-api
+    name: ekiview-backend
     plan: free
     # repo: https://github.com/render-examples/webdis.git # Default: Repo containing render.yaml
     rootDir: ./backend
@@ -45,6 +45,8 @@ services:
           type: redis
           name: ekiview-redis
           property: port
+      - key: VITE_APP_URL
+        value: https://ekiview.onrender.com
       - key: GOOGLE_MAPS_API_KEY
         sync: false
 
@@ -55,11 +57,11 @@ services:
     rootDir: ./frontend
     envVars:
       - key: VITE_API_BASE_URL
-        value: https://ekiview-api.onrender.com
+        value: https://ekiview-backend.onrender.com
       - key: VITE_APP_PORT
         value: 3001
       - key: VITE_APP_HOST
-        value: https://ekiview.onrender.com
+        value: ekiview.onrender.com
 
 # A Redis instance
   - type: redis

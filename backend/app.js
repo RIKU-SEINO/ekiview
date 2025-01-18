@@ -8,7 +8,14 @@ const routeSearchRoutes = require('./routes/routeSearchRoutes');
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [process.env.VITE_APP_URL];
+const options = {
+  origin: allowedOrigins,
+  methods: 'GET, POST, PUT, DELETE',
+  credentials: true,
+}
+
+app.use(cors(options));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());

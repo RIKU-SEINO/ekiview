@@ -1,4 +1,10 @@
 console.log('config.js');
+console.log("hostname: ", process.env.PG_HOST);
+console.log("port: ", process.env.PG_PORT);
+console.log("username: ", process.env.PG_USER);
+console.log("database: ", process.env.PG_DB);
+console.log("password: ", process.env.PG_PASSWORD);
+
 
 module.exports = {
   development: {

@@ -94,6 +94,7 @@ const QRCodeReader = () => {
             });
 
             setTimeout(() => {
+              setLoading(true);
               navigate("/home?"+ currentQueryParams.toString());
               window.location.reload();
               setLoading(false);
@@ -169,7 +170,7 @@ const QRCodeReader = () => {
           <>
             {/* カメラ選択リスト */}
             {devices.length > 0 && (
-              <div>
+              <div style={styles.selectWrapper}>
                 <select
                   onChange={(e) => setSelectedDeviceId(e.target.value)}
                   value={selectedDeviceId}
@@ -218,15 +219,26 @@ const styles = {
     marginTop: "60px",
   },
   video: {
-    width: "auto",
-    maxWidth: "90%",
+    width: "100%",
+    maxWidth: "300px",
     margin: "20px auto",
+    marginBottom: "0px",
+    borderRadius: "10px",  // 動画の角を丸くする
+  },
+  selectWrapper: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    width: "100%",
   },
   select: {
     padding: "10px",
     fontSize: "16px",
     cursor: "pointer",
-    marginBottom: "20px",
+    width: "90%",  // 幅を80%に設定
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+    backgroundColor: "#fff",
   },
   error: {
     color: "red",

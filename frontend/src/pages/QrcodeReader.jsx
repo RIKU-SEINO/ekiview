@@ -40,35 +40,25 @@ const QRCodeReader = () => {
 
   const checkCameraPermission = async () => {
     try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter((device) => device.kind === "videoinput");
-  
-      if (videoDevices.length === 0) {
-        alert("No camera devices found.");
-        return;
-      }
-  
-      const backCamera = videoDevices.find((device) =>
-        device.label.toLowerCase().includes("back")
-      );
-  
-      alert("length: " + videoDevices.length); 
-      console.log('backCamera:', backCamera);
-      const selectedCamera = backCamera || videoDevices[0];
-  
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { deviceId: selectedCamera.deviceId },
+      const streamAll = await navigator.mediaDevices.getUserMedia({ video: true });
+
+      const streamBackCamera = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { exact: "environment" },
+        },
       });
-  
-      setCameraPermission(true);
-      setCameraStream(stream);
-      handleQRCodeRead();
+
+      const stream = streamBackCamera || streamAll;
+
+      if (stream) {
+        setCameraPermission(true);
+        setCameraStream(stream);
+        handleQRCodeRead();
+      }
     } catch (err) {
       setCameraPermission(false);
-      console.error("Error accessing camera:", err);
     }
   };
-  
 
   const handleQRCodeRead = async () => {
     const codeReader = new BrowserMultiFormatReader();

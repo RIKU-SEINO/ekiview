@@ -75,7 +75,7 @@ databases:
 
   # A database with a read replica
   - name: ekiview-db
-    plan: starter
+    plan: free
     region: singapore
     postgresMajorVersion: "13"
     databaseName: ekiview_production

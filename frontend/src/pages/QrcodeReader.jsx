@@ -17,7 +17,7 @@ const QRCodeReader = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = `EkiView - ${t('QR Scan')}`;
+    document.title = `${t('QR Scan')} - EkiView`;
   });
 
   useEffect(() => {

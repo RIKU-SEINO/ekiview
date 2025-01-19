@@ -21,7 +21,7 @@ const RouteResultPage = () => {
   };
 
   useEffect(() => {
-    document.title = `EkiView - ${t('Route Details')}`;
+    document.title = `${t('Route Details')} - EkiView`;
   });
 
   return (

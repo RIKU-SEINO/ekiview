@@ -85,6 +85,7 @@ const QRCodeReader = () => {
 
           if (isValidUrl(resultText)) {
             setRedirecting(true);
+            setLoading(true);
 
             const url = new URL(resultText);
             const currentQueryParams = new URLSearchParams(location.search);
@@ -94,7 +95,6 @@ const QRCodeReader = () => {
             });
 
             setTimeout(() => {
-              setLoading(true);
               navigate("/home?"+ currentQueryParams.toString());
               window.location.reload();
               setLoading(false);

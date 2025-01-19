@@ -62,7 +62,7 @@ const QRCodeReader = () => {
     try {
       const videoInputDevices = await codeReader.listVideoInputDevices();
       const selectedDeviceId =
-        videoInputDevices.length > 0 ? videoInputDevices[0].deviceId : null;
+        videoInputDevices.length > 0 ? videoInputDevices[videoInputDevices.length-1].deviceId : null;
 
       if (!selectedDeviceId) {
         alert(t('No camera devices found.'));

@@ -48,7 +48,9 @@ const QRCodeReader = () => {
         },
       });
 
-      const stream = streamBackCamera || streamAll;
+      alert(streamBackCamera);
+
+      const stream = streamBackCamera;
 
       if (stream) {
         setCameraPermission(true);

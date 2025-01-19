@@ -1,4 +1,5 @@
 const axios = require('axios');
+const cacheService = require('./cacheService');
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
@@ -44,9 +45,17 @@ const generateUUID = () => {
 const callPlaceAutocompleteAPI = async (input, language, sessionToken) => {
   const autocompleteUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${input}&key=${GOOGLE_MAPS_API_KEY}&sessiontoken=${sessionToken}&language=${language}&locationbias=ipbias`;
 
+  const cacheKey = `autocomplete-${input}-${language}`;
   try {
-    const response = await axios.get(autocompleteUrl);
-    return response.data;
+    const cachedSuggestions = await cacheService.get(cacheKey);
+    if (cachedSuggestions) {
+      return JSON.parse(cachedSuggestions);
+    } else {
+      const response = await axios.get(autocompleteUrl);
+      const suggestions = response.data;
+      await cacheService.set(cacheKey, JSON.stringify(suggestions));
+      return suggestions;
+    }
   } catch (error) {
     throw new Error('Failed to fetch autocomplete suggestions: ' + error.message);
   }
@@ -59,11 +68,19 @@ const callPlaceAutocompleteAPI = async (input, language, sessionToken) => {
  * @returns {Promise<Object>} - API response
  */
 const callPlaceDetailsAPI = async (placeId, language) => {
-  const placeDetailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?fields=name&place_id=${placeId}&key=${GOOGLE_MAPS_API_KEY}&language=${language}`;
+  const placeDetailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?fields=name%2Cgeometry&place_id=${placeId}&key=${GOOGLE_MAPS_API_KEY}&language=${language}`;
 
+  const cacheKey = `placeDetails-${placeId}-${language}`;
   try {
-    const response = await axios.get(placeDetailsUrl);
-    return response.data;
+    const cachedDetails = await cacheService.get(cacheKey);
+    if (cachedDetails) {
+      return JSON.parse(cachedDetails);
+    } else {
+      const response = await axios.get(placeDetailsUrl);
+      const details = response.data;
+      await cacheService.set(cacheKey, JSON.stringify(details));
+      return details;
+    }
   } catch (error) {
     throw new Error('Failed to fetch place details: ' + error.message);
   }

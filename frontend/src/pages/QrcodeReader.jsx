@@ -9,10 +9,11 @@ import LoadingOverlay from "../components/LoadingOverlay";
 const QRCodeReader = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
-  const [guide, setGuide] = useState("Scan QR code");
+  const [guide, setGuide] = useState(t('Scan QR code'));
   const [redirecting, setRedirecting] = useState(false);
   const [cameraPermission, setCameraPermission] = useState(null);
-  const [cameraStream, setCameraStream] = useState(null);  // カメラのストリームを保存
+  const [devices, setDevices] = useState([]); // 利用可能なカメラデバイスを保存
+  const [selectedDeviceId, setSelectedDeviceId] = useState(null); // 選ばれたカメラのID
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -38,21 +39,33 @@ const QRCodeReader = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (cameraPermission === true) {
+      handleQRCodeRead();
+    }
+  }, [selectedDeviceId]);
+
   const checkCameraPermission = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { exact: "environment" },
-        },
-      });
-
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       if (stream) {
         setCameraPermission(true);
-        setCameraStream(stream);
-        handleQRCodeRead();
+        listVideoDevices(); // カメラデバイスのリストを取得
       }
     } catch (err) {
       setCameraPermission(false);
+      console.error("Camera permission error:", err);
+    }
+  };
+
+  const listVideoDevices = async () => {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevices = devices.filter(device => device.kind === "videoinput");
+    setDevices(videoDevices);
+
+    if (videoDevices.length > 0) {
+      // デフォルトではリアカメラを選択
+      setSelectedDeviceId(videoDevices[videoDevices.length - 1].deviceId);
     }
   };
 
@@ -60,12 +73,8 @@ const QRCodeReader = () => {
     const codeReader = new BrowserMultiFormatReader();
 
     try {
-      const videoInputDevices = await codeReader.listVideoInputDevices();
-      const selectedDeviceId =
-        videoInputDevices.length > 0 ? videoInputDevices[videoInputDevices.length-1].deviceId : null;
-
       if (!selectedDeviceId) {
-        alert(t('No camera devices found.'));
+        alert(t('No camera selected.'));
         return;
       }
 
@@ -76,7 +85,6 @@ const QRCodeReader = () => {
 
           if (isValidUrl(resultText)) {
             setRedirecting(true);
-            setLoading(true);
 
             const url = new URL(resultText);
             const currentQueryParams = new URLSearchParams(location.search);
@@ -96,16 +104,11 @@ const QRCodeReader = () => {
         }
       });
     } catch (err) {
-      alert(t('Error initializing QR code reader:')+ " " + err.message);
+      alert(t('Error initializing QR code reader:') + " " + err.message);
     }
   };
 
   const stopCamera = () => {
-    if (cameraStream) {
-      cameraStream.getTracks().forEach((track) => track.stop());
-      setCameraStream(null);
-    }
-
     const videoElement = document.getElementById("video");
     if (videoElement && videoElement.srcObject) {
       const tracks = videoElement.srcObject.getTracks();
@@ -115,14 +118,9 @@ const QRCodeReader = () => {
 
   const requestCameraPermission = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { exact: "environment" },
-        },
-      });
-      setCameraStream(stream);
+      await navigator.mediaDevices.getUserMedia({ video: true });
       setCameraPermission(true);
-      handleQRCodeRead();
+      listVideoDevices(); // カメラリストを取得
     } catch (err) {
       alert(t('Camera permission denied.'));
     }
@@ -138,13 +136,18 @@ const QRCodeReader = () => {
   };
 
   useEffect(() => {
-    if (cameraStream) {
+    if (selectedDeviceId) {
       const videoElement = document.getElementById("video");
       if (videoElement) {
-        videoElement.srcObject = cameraStream;
+        videoElement.srcObject = null; // 以前のカメラを停止
+        navigator.mediaDevices
+          .getUserMedia({ video: { deviceId: selectedDeviceId } })
+          .then((stream) => {
+            videoElement.srcObject = stream;
+          });
       }
     }
-  }, [cameraStream]);
+  }, [selectedDeviceId]);
 
   return (
     <div style={styles.page}>
@@ -153,9 +156,9 @@ const QRCodeReader = () => {
 
       {/* Main Content */}
       <div style={styles.mainContent}>
-        {cameraPermission === null ? ( // 権限チェック中
+        {cameraPermission === null ? (
           <p>{t('Checking camera permissions...')}</p>
-        ) : cameraPermission === false ? ( // カメラが許可されていない場合
+        ) : cameraPermission === false ? (
           <>
             <p style={styles.error}>{t('Camera permission is not granted')}</p>
             <button onClick={requestCameraPermission} style={styles.button}>
@@ -164,6 +167,24 @@ const QRCodeReader = () => {
           </>
         ) : (
           <>
+            {/* カメラ選択リスト */}
+            {devices.length > 0 && (
+              <div>
+                <select
+                  onChange={(e) => setSelectedDeviceId(e.target.value)}
+                  value={selectedDeviceId}
+                  style={styles.select}
+                >
+                  {devices.map((device) => (
+                    <option key={device.deviceId} value={device.deviceId}>
+                      {device.label || t('Unnamed device')}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* QRコードリーダー */}
             <video id="video" style={styles.video}></video>
             {redirecting ? (
               <p style={styles.redirecting}>{t('Scan Success!')}</p>
@@ -200,6 +221,12 @@ const styles = {
     width: "auto",
     maxWidth: "90%",
     margin: "20px auto",
+  },
+  select: {
+    padding: "10px",
+    fontSize: "16px",
+    cursor: "pointer",
+    marginBottom: "20px",
   },
   error: {
     color: "red",

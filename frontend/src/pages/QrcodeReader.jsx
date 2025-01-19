@@ -40,7 +40,9 @@ const QRCodeReader = () => {
 
   const checkCameraPermission = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+      });
       if (stream) {
         setCameraPermission(true);
         setCameraStream(stream);
@@ -48,6 +50,7 @@ const QRCodeReader = () => {
       }
     } catch (err) {
       setCameraPermission(false);
+      console.error("Camera permission error:", err);
     }
   };
 

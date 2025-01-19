@@ -26,6 +26,8 @@
     "Language": "Idioma",
     "Route Details": "Detalles de la ruta",
     "QR Scan": "Escanear QR",
-    "Failed to retrieve street view images for part of the route": "No se pudieron recuperar las imágenes de la vista de la calle para una parte de la ruta"
+    "Failed to retrieve street view images for part of the route": "No se pudieron recuperar las imágenes de la vista de la calle para una parte de la ruta",
+    "The page you are looking for does not exist": "La página que busca no existe",
+    "Go to Home": "Ir a Inicio"
   }
   

@@ -79,7 +79,7 @@ exports.transformRoutesService = (routes) => {
     const _allBuildingLevels = [];
     const allInstructions = [];
     const _allInstructions = [];
-    let isInsideBuilding = true;
+    let isInsideBuilding = false;
     let isFirstStep = true;
 
     const transformedLegs = route.legs.map(leg => {
@@ -95,7 +95,7 @@ exports.transformRoutesService = (routes) => {
           allPolyline.push(...decodedStepPolyline);
 
           const buildingLevel = step.building_level ? step.building_level.number : NaN;
-          isInsideBuilding = isInsideBuilding && !isNaN(buildingLevel);
+          isInsideBuilding = isInsideBuilding || !isNaN(buildingLevel);
 
           // Fill building levels array
           decodedStepPolyline.forEach(() => {

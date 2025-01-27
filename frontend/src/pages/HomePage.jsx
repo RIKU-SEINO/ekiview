@@ -323,6 +323,7 @@ const styles = {
     backgroundColor: "#fff",
     //textAlign: "center",
     //width: "100%",
+    color: "#000" ,
     transition: "background-color 0.2s",
   },
   suggestionItemHover: {

@@ -1,10 +1,7 @@
 import axios from 'axios';
 
-const host = 'localhost'; 
-const apiPort = 5001;
-const baseURL = `http://${host}:${apiPort}`;
-
 const axiosInstance = axios.create({
-  baseURL: baseURL,
+  baseURL: process.env.VITE_API_BASE_URL,
+  withCredentials: true,
 });
 export default axiosInstance;

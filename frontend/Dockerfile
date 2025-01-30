@@ -1,17 +1,21 @@
-# node:22-slimを使用
 FROM node:22-slim
 
-# 作業ディレクトリを設定
 WORKDIR /app
 
-# パッケージ管理ファイルをコピー
-COPY package.json package-lock.json ./
+COPY package.json ./
 
-# 依存関係をインストール
-RUN npm install
+RUN npm install --production=false
 
-# ソースコードをコピー
 COPY . .
 
-# Vite の開発サーバーを起動
-CMD ["npm", "run", "dev"]
+ENV NODE_ENV=production
+
+RUN npm run build
+
+# FROM nginx:alpine
+
+# COPY --from=0 /app/dist /usr/share/nginx/html
+
+# CMD ["nginx", "-g", "daemon off;"]
+
+CMD ["npm", "start"]

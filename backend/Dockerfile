@@ -1,17 +1,13 @@
-# node:22-slimを使用
 FROM node:22-slim
 
-# 作業ディレクトリを設定
 WORKDIR /app
 
-# パッケージ管理ファイルをコピー
-COPY package.json package-lock.json ./
+COPY package.json ./
 
-# 依存関係をインストール
-RUN npm install
+RUN npm install --production=false
 
-# ソースコードをコピー
 COPY . .
 
-# サーバーを起動
-CMD ["bash", "-c", "npx sequelize-cli db:drop && npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all && npm run dev"]
+ENV NODE_ENV=production
+
+CMD ["bash", "-c", "npx sequelize-cli db:drop && npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all && npm start"]

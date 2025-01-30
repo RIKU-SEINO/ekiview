@@ -10,12 +10,14 @@ const { Op } = require('sequelize');
  * @returns {Object} - The object containing the panorama IDs and headings
  *  example: { panoramaIds: [panoramaId1, panoramaId2, ...], panoramaHeadings: [heading1, heading2, ...], routeStepIdsInPanoramaIds: [routeStepId1, routeStepId1, routeStepId2, routeStepId3, routeStepId3, ...] }
 */
-exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) => {
+exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId, destinationLatLng) => {
   console.log("Panorama Search Start");
 
   const sessionToken = await tilesApiGenerateSessionTokenService();
   const panoramaIds = [currentPanoramaId];
+  let savePanoramaIds = [];
   const panoramaHeadings = [];
+  let savePanoramaHeadings = [];
   const blacklistedPanoramaIds = [];
   const routeStepIdsInPanoramaIds = [];
   const connectionsIds = [];
@@ -25,7 +27,7 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
   let success = true;
 
   // ルート上で、階段の入り口のパノラマIDを全て取得
-  for (let j=0; j<route['all_polyline'].length; j++) {
+  for (let j=0; j<route['all_polyline'].length-1; j++) {
     targetPanoramaIds.push(null);
 
     const cpoBuildingLevel = route['all_building_levels'][j];
@@ -86,8 +88,37 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
         const { panoramaId, depth } = queue.shift();
         if (depth > depthLimit) continue;
   
+        const panoramas = await PanoramaConnections.findAll({
+          where: {panorama_id: panoramaId}
+        });//ex. スプレッドシートの20行目, 24行目
+        const nearPanoramas = await PanoramaConnections.findAll({
+          where: {
+              [Op.and]: [
+                  { panorama_id: { [Op.ne]: panoramaId } },
+                  {
+                      [Op.or]: panoramas.map(item => ({
+                          building_level_comparison: item.building_level_comparison,
+                          connection_id: item.connection_id
+                      }))
+                  }
+              ]
+          }
+        });//ex. スプレッドシートの21行目, 25行目
+        const additionalLinks = [
+          ...nearPanoramas.map(nearPanorama => {//nearPanorama: 21行目
+            const connectedToNearPanoramaId = nearPanorama.connected_panorama_id;
+            const panorama = panoramas.find(item => item.connected_panorama_id == connectedToNearPanoramaId);// panorama: 20行目
+            const nearPanoramaCartesian = latLngToXY(nearPanorama.panorama_lat, nearPanorama.panorama_lng);
+            const panoramaCartesian = latLngToXY(panorama.panorama_lat, panorama.panorama_lng);
+            const heading = degrees(Math.atan2(nearPanoramaCartesian.y - panoramaCartesian.y, nearPanoramaCartesian.x - panoramaCartesian.x));
+            return {
+              panoId: nearPanorama.panorama_id,
+              heading: heading
+            };
+          }),
+        ];
         const metadata = await tilesApiMetadataService(sessionToken, panoramaId);
-        const links = metadata.links;
+        const links = [...metadata.links, ...additionalLinks];
   
         for (const link of links) {
           const connectedPanoramaId = link.panoId;
@@ -100,18 +131,18 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
           const newPanoramaIds = [panoramaId, ...panoramaIdsFromSearchPanoramaId];
           const newHeadings = [180 + link.heading, ...panoramaHeadingsFromSearchPanoramaId];
   
-          let oldAngleAve = 0;
-          let newAngleAve = 0;
+          let oldAngleSum = 0;
+          let newAngleSum = 0;
           if (oldHeadings.length > 0) {
             for (let i = 0; i < oldHeadings.length - 1; i++) {
-              oldAngleAve += calculateAngleDifference(oldHeadings[i], oldHeadings[i + 1]);
+              oldAngleSum += calculateAngleDifference(oldHeadings[i], oldHeadings[i + 1]);
             }
             for (let i = 0; i < newHeadings.length - 1; i++) {
-              newAngleAve += calculateAngleDifference(newHeadings[i], newHeadings[i + 1]);
+              newAngleSum += calculateAngleDifference(newHeadings[i], newHeadings[i + 1]);
             }
           }
   
-          if (oldAngleAve >= newAngleAve) {
+          if (oldAngleSum >= newAngleSum) {
             supportPanoramaIdsToTargetPanoramaId[targetPanoramaId][connectedPanoramaId] = newPanoramaIds;
             supportPanoramaHeadingsToTargetPanoramaId[targetPanoramaId][connectedPanoramaId] = newHeadings;
           }
@@ -126,6 +157,9 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
 
   let i = 0;
   let backTrackingCount = 0;
+  let lastFloor = false;
+  let distanceToDestination = Infinity;
+  let noPanoramaBacktrack = false;
   while (i < route['all_polyline'].length - 1) {
     if (!update) {
       const cpaMetadata = await tilesApiMetadataService(sessionToken, cpaId);
@@ -136,6 +170,21 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
         success = false;
         break;
       }
+
+      // Check if the destination is reached
+      const distance = haversineDistance(cpaMetadata.originalLat, cpaMetadata.originalLng, destinationLatLng.lat, destinationLatLng.lng);
+      console.log("distance: ", distance);
+      if (lastFloor && distance < distanceToDestination) {
+        distanceToDestination = distance;
+      } else if (lastFloor && distance > distanceToDestination && distance < 20) {
+        console.log("Arrived at destination");
+        panoramaIds.push(cpaId);
+        panoramaIds.push(cpaId);
+        const heading = degrees(Math.atan2(destinationLatLng.lng - cpaMetadata.originalLng, destinationLatLng.lat - cpaMetadata.originalLat));
+        panoramaHeadings.push(heading);
+        break;
+      };
+
       var cpaCartesian = latLngToXY(cpaMetadata.originalLat, cpaMetadata.originalLng);
 
       var cpaLinks = cpaMetadata.links;
@@ -162,9 +211,11 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
     update = false;
 
     const targetPanoramaId = targetPanoramaIds[i];
+    if (targetPanoramaId === null) lastFloor = true;
     const support = supportPanoramaIdsToTargetPanoramaId[targetPanoramaId];
     const supportHeading = supportPanoramaHeadingsToTargetPanoramaId[targetPanoramaId];
     if (targetPanoramaId !== null && support[cpaId]) {
+      noPanoramaBacktrack = false;//行き先を見つけたので、バックトラック履歴をリセット
       const connections = await PanoramaConnections.findAll({
         where: {panorama_id: targetPanoramaId}
       })
@@ -223,7 +274,12 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
 
     // If no suitable panorama is found, backtrack
     if (npaId == cpaId) {
-      console.error("Panorama Fetch along the route failed, backtracking...");
+      console.error("Panorama Fetch along the route failed, backtracking..."); 
+      if (!noPanoramaBacktrack) {//初めてのバックトラックの場合、保存
+        savePanoramaIds = [...panoramaIds];
+        savePanoramaHeadings = [...panoramaHeadings];
+      };
+      noPanoramaBacktrack = true;
       blacklistedPanoramaIds.push(cpaId);
       panoramaIds.pop();
       panoramaHeadings.pop();
@@ -232,11 +288,12 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
     }
     if (backTrackingCount > 10) {
       console.warn("High angle difference detected, so stop searching");
-      sucess = false;
+      success = false;
       break;
     }
     // If the selected angle difference is too high, the route is likely incorrect, so backtrack
-    if (minScore > 110 && cpaLinks.length > 1) {
+    console.log("minScore: ", minScore);
+    if (minScore > 170 && cpaLinks.length > 1) {
       backTrackingCount++;
       console.warn("High angle difference detected, backtracking...");
       panoramaIds.pop();
@@ -252,6 +309,16 @@ exports.fetchAllPanoramasAlongRouteService = async (route, currentPanoramaId) =>
     cpoCartesian = npoCartesian;
     console.log("階段なし, 次のパノラマID: "+cpaId+" ターゲットパノラマID: "+targetPanoramaId);
   };
+  console.log("success: ", success);
+
+  if (!success && noPanoramaBacktrack) {
+    return { 
+      panoramaIds: savePanoramaIds,
+      panoramaHeadings: savePanoramaHeadings,
+      routeStepIdsInPanoramaIds: routeStepIdsInPanoramaIds,
+      success: success,
+    };
+  }
 
   return { 
     panoramaIds: panoramaIds,
@@ -276,7 +343,7 @@ exports.constructStreetviewUrls = async (panoramaIds, panoramaHeadings) => {
   for (let i = 0; i < panoramaIds.length; i++) {
     const panoramaId = panoramaIds[i];
     const heading = panoramaHeadings[i];
-    const pitch = 20;
+    const pitch = -10;
     const fov = 90;
     const height = 450;
     const width = 600;

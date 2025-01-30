@@ -26,6 +26,8 @@
     "Language": "Language",
     "Route Details": "Route Details",
     "QR Scan": "QR Scan",
-    "Failed to retrieve street view images for part of the route": "Failed to retrieve street view images for part of the route"
+    "Failed to retrieve street view images for part of the route": "Failed to retrieve street view images for part of the route",
+    "The page you are looking for does not exist": "The page you are looking for does not exist",
+    "Go to Home": "Go to Home"
   }
   

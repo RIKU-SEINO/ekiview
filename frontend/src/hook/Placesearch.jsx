@@ -29,24 +29,27 @@ export const usePlaceSuggestions = () => {
 };
 
 export const usePlaceDetails = () => {
-  const [originDetails, setOriginDetails] = useState("");
-  const [destinationDetails, setDestinationDetails] = useState("");
+  const [originDetailsName, setOriginDetailsName] = useState("");
+  const [originDetailsLatLng, setOriginDetailsLatLng] = useState({lat: 0, lng: 0});
+  const [destinationDetailsName, setDestinationDetailsName] = useState("");
+  const [destinationDetailsLatLng, setDestinationDetailsLatLng] = useState({lat: 0, lng: 0});
   const [error, setError] = useState(null);
 
   const fetchPlaceDetails = async ({placeId, mode, language}) => {
     try {
       const response = await axios.get(`/api/placesearch/details?place_id=${placeId}&language=${language}`);
       if (mode === "origin") {
-        setOriginDetails(response.data.placeDetails.result.name);
+        setOriginDetailsName(response.data.placeDetails.result.name);
+        setOriginDetailsLatLng(response.data.placeDetails.result.geometry.location);
       } else {
-        setDestinationDetails(response.data.placeDetails.result.name);
+        setDestinationDetailsName(response.data.placeDetails.result.name);
+        setDestinationDetailsLatLng(response.data.placeDetails.result.geometry.location);
       }
     } catch (err) {
       console.error("Failed to fetch place details:", err);
       setError(err);
-      setDetails(null);
     }
   };
 
-  return { originDetails, destinationDetails, error, fetchPlaceDetails };
+  return { originDetailsName, originDetailsLatLng, destinationDetailsName,  destinationDetailsLatLng, error, fetchPlaceDetails };
 };

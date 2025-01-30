@@ -26,6 +26,8 @@
     "Language": "语言",
     "Route Details": "路线详情",
     "QR Scan": "扫描二维码",
-    "Failed to retrieve street view images for part of the route": "无法检索部分路线的街景图像"
+    "Failed to retrieve street view images for part of the route": "无法检索部分路线的街景图像",
+    "The page you are looking for does not exist": "您要查找的页面不存在",
+    "Go to Home": "返回主页"
   }
   

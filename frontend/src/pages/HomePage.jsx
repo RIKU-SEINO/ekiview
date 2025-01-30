@@ -14,14 +14,16 @@ const HomePage = () => {
   const { t } = useTranslation();
   const [currentLocation, setCurrentLocation] = useState("");
   const [currentLocationText, setCurrentLocationText] = useState("");
+  const [currentLocationLatLng, setCurrentLocationLatLng] = useState({lat: 0, lng: 0});
   const [destination, setDestination] = useState("");
   const [destinationText, setDestinationText] = useState("");
+  const [destinationLatLng, setDestinationLatLng] = useState({lat: 0, lng: 0});
   const [hoverIndex, setHoverIndex] = useState(null);
   const [originPanorama, setOriginPanorama] = useState("");
   const { suggestions: currentLocationSuggestions, fetchSuggestions: fetchCurrentLocationSuggestions, resetSuggestions: resetCurrentLocationSuggestions } = usePlaceSuggestions();
   const { suggestions: destinationSuggestions, fetchSuggestions: fetchDestinationSuggestions, resetSuggestions: resetDestinationSuggestions } = usePlaceSuggestions();
   const [loading, setLoading] = useState(false);
-  const { originDetails, destinationDetails, fetchPlaceDetails } = usePlaceDetails();
+  const { originDetailsName, originDetailsLatLng, destinationDetailsName, destinationDetailsLatLng, fetchPlaceDetails } = usePlaceDetails();
   const { results, error, search } = useSearch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -31,38 +33,8 @@ const HomePage = () => {
   const placeId = useFetchQrData(qrId);
 
   useEffect(() => {
-    document.title = `EkiView - ${t('Home')}`;
+    document.title = `${t('Home')} - EkiView`;
   });
-
-  useEffect(() => {
-    const fetchOriginPlaceDetailsAsync = async () => {
-      const currentUrl = new URL(window.location.href);
-      const originPlaceId = currentUrl.searchParams.get("origin_place_id");
-  
-      if (originPlaceId) {
-        const language = localStorage.getItem("i18nextLng") || "en";
-        await fetchPlaceDetails({ placeId: originPlaceId, mode: "origin", language: language });
-        setCurrentLocationText(originDetails);
-      }
-    };
-  
-    fetchOriginPlaceDetailsAsync();
-  }, [originDetails]); 
-
-  useEffect(() => {
-    const fetchDestinationPlaceDetailsAsync = async () => {
-      const currentUrl = new URL(window.location.href);
-      const destinationPlaceId = currentUrl.searchParams.get("destination_place_id");
-  
-      if (destinationPlaceId) {
-        const language = localStorage.getItem("i18nextLng") || "en";
-        await fetchPlaceDetails({ placeId: destinationPlaceId, mode: "destination", language: language });
-        setDestinationText(destinationDetails);
-      }
-    };
-  
-    fetchDestinationPlaceDetailsAsync();
-  }, [destinationDetails]);
 
   useEffect(() => {
     if (placeId) {
@@ -74,7 +46,7 @@ const HomePage = () => {
     
         if (originPlaceId) {
           await fetchPlaceDetails({ placeId: originPlaceId, mode: "origin" });
-          setCurrentLocationText(originDetails);
+          setCurrentLocationText(originDetailsName);
         }
       };
     
@@ -82,11 +54,44 @@ const HomePage = () => {
     }
   }, [placeId]);
 
+
+  useEffect(() => {
+    const fetchOriginPlaceDetailsAsync = async () => {
+      const currentUrl = new URL(window.location.href);
+      const originPlaceId = currentUrl.searchParams.get("origin_place_id");
+  
+      if (originPlaceId) {
+        const language = localStorage.getItem("i18nextLng") || "en";
+        await fetchPlaceDetails({ placeId: originPlaceId, mode: "origin", language: language });
+        setCurrentLocationText(originDetailsName);
+        setCurrentLocationLatLng(originDetailsLatLng);
+      }
+    };
+  
+    fetchOriginPlaceDetailsAsync();
+  }, [originDetailsName]); 
+
+  useEffect(() => {
+    const fetchDestinationPlaceDetailsAsync = async () => {
+      const currentUrl = new URL(window.location.href);
+      const destinationPlaceId = currentUrl.searchParams.get("destination_place_id");
+  
+      if (destinationPlaceId) {
+        const language = localStorage.getItem("i18nextLng") || "en";
+        await fetchPlaceDetails({ placeId: destinationPlaceId, mode: "destination", language: language });
+        setDestinationText(destinationDetailsName);
+        setDestinationLatLng(destinationDetailsLatLng);
+      }
+    };
+  
+    fetchDestinationPlaceDetailsAsync();
+  }, [destinationDetailsName]);
+
   useEffect(() => {
     if (currentLocation && destination) {
       setLoading(true);
       const language = localStorage.getItem("i18nextLng") || "en";
-      search(currentLocation, destination, originPanorama, language).finally(() => {
+      search(currentLocation, destination, originPanorama, language, destinationLatLng).finally(() => {
         setLoading(false);
       }); 
     }

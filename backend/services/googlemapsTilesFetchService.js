@@ -1,6 +1,5 @@
 const axios = require('axios');
 const cacheService = require('./cacheService');
-require('dotenv').config({ path: '../.env' });
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 

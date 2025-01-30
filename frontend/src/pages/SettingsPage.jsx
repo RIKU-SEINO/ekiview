@@ -13,7 +13,7 @@ const SettingsPage = () => {
   };
 
   useEffect(() => {
-    document.title = `EkiView - ${t('Language')}`;
+    document.title = `${t('Language')} - EkiView`;
   });
 
   return (

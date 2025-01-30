@@ -26,7 +26,9 @@
     "Language": "言語選択",
     "Route Details": "ルート詳細",
     "QR Scan": "QRコードスキャン",
-    "Failed to retrieve street view images for part of the route": "経路上の一部でストリートビュー画像の取得に失敗しました"
+    "Failed to retrieve street view images for part of the route": "経路上の一部でストリートビュー画像の取得に失敗しました",
+    "The page you are looking for does not exist": "お探しのページは存在しません",
+    "Go to Home": "ホームに戻る"
   }
   
   

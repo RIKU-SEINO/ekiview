@@ -66,16 +66,19 @@ exports.routeSearch = async (req, res) => {
     }
 
     const currentPanoramaId = req.query.currentPanoramaId;
-    const panoramas =  await fetchAllPanoramasAlongRouteService(transformedRoutes[0], currentPanoramaId);
+    const destinationLat = req.query.destinationLat;
+    const destinationLng = req.query.destinationLng;
+    const destinationLatLng = { lat: destinationLat, lng: destinationLng };
+    const panoramas =  await fetchAllPanoramasAlongRouteService(transformedRoutes[0], currentPanoramaId, destinationLatLng);
     const panoramaIds = panoramas.panoramaIds;
     const panoramaHeadings = panoramas.panoramaHeadings;
     const routeStepIdsInPanoramaIds = panoramas.routeStepIdsInPanoramaIds;
-    const sucess = panoramas.success;
+    const success = panoramas.success;
     const streetviewUrls = await constructStreetviewUrls(panoramaIds, panoramaHeadings);
     transformedRoutes[0].streetviewUrls = streetviewUrls;
     transformedRoutes[0].headings = panoramaHeadings;
     transformedRoutes[0].routeStepIdsInPanoramaIds = routeStepIdsInPanoramaIds;
-    transformedRoutes[0].success = sucess;
+    transformedRoutes[0].success = success;
 
     res.status(200).json({
       routes: transformedRoutes,

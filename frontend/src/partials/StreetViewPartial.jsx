@@ -39,15 +39,15 @@ const StreetViewPartial = ({ results, originalPanorama }) => {
   const handleArrowClick = (direction) => {
     setCurrentIndex((prevIndex) => {
       const newIndex = prevIndex + direction;
-      return Math.max(0, Math.min(totalImages - 3, newIndex));
+      return Math.max(0, Math.min(totalImages - 2, newIndex));
     });
   };
 
   const handleInstructionsArrowClick = (direction) => {
     setCurrentIndex((prevIndex) => {
-      if (prevIndex === totalImages - 3 && direction > 0) return totalImages - 3;
+      if (prevIndex === totalImages - 2 && direction > 0) return totalImages - 2;
       let currentInstructionIndex;
-      if (prevIndex === totalImages - 3 && direction < 0) {
+      if (prevIndex === totalImages - 2 && direction < 0) {
         currentInstructionIndex = uniqueAllInstructions.length-1
       } else {
         currentInstructionIndex = uniqueAllInstructions.indexOf(currentInstruction);
@@ -55,19 +55,19 @@ const StreetViewPartial = ({ results, originalPanorama }) => {
       const newInstructionIndex = Math.max(0, Math.min(uniqueAllInstructions.length, currentInstructionIndex + direction));
       const newInstruction = uniqueAllInstructions[newInstructionIndex];
       const newIndex = allInstructionsInPanoramaIds.indexOf(newInstruction);
-      if (newInstructionIndex === uniqueAllInstructions.length) return totalImages - 3;
-      return Math.max(0, Math.min(totalImages - 3, newIndex));
+      if (newInstructionIndex === uniqueAllInstructions.length) return totalImages - 2;
+      return Math.max(0, Math.min(totalImages - 2, newIndex));
     });
   };
 
   const thisYear = new Date().getFullYear();
 
   useEffect(() => {
-    if (!success) setShowFlash(true);
+    setShowFlash(!success);
   }, [location]);
 
   useEffect(() => {
-    if (currentIndex === totalImages - 3) {
+    if (currentIndex === totalImages - 2) {
       setCurrentInstruction(t('End of Route'));
     } else {
       setCurrentInstruction(allInstructionsInPanoramaIds[currentIndex]);
@@ -109,7 +109,15 @@ const StreetViewPartial = ({ results, originalPanorama }) => {
           justifyContent: "center",
         }}
       >
-        <MdKeyboardDoubleArrowLeft style={{ fontSize: "30px" }} />
+        <MdKeyboardDoubleArrowLeft
+          style={{
+            fontSize: "30px",
+            color: "black",
+            backgroundColor: "white",
+            stroke: "black",
+            borderRadius: "20%",
+          }}
+        />
       </Box>
 
       {/* インストラクションテキスト */}
@@ -137,7 +145,15 @@ const StreetViewPartial = ({ results, originalPanorama }) => {
           justifyContent: "center",
         }}
       >
-        <MdKeyboardDoubleArrowRight style={{ fontSize: "30px" }} />
+        <MdKeyboardDoubleArrowRight
+          style={{
+            fontSize: "30px",
+            color: "black",
+            backgroundColor: "white",
+            stroke: "black",
+            borderRadius: "20%",
+          }}
+        />
       </Box>
     </Box>
 
@@ -178,12 +194,13 @@ const StreetViewPartial = ({ results, originalPanorama }) => {
       </div>
     </Box>
     
+    {currentIndex !== totalImages - 2 && (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 400 800"
       style={{
         position: "absolute",
-        top: "50%",
+        top: "60%",
         left: "50%",
         transform: "translate(-50%, -50%)",
         width: "200px",
@@ -213,6 +230,7 @@ const StreetViewPartial = ({ results, originalPanorama }) => {
         }}
       />
     </svg>
+    )}
 
     {/* 左右矢印ボタン */}
     <Box
@@ -228,7 +246,13 @@ const StreetViewPartial = ({ results, originalPanorama }) => {
     >
       <MdKeyboardArrowLeft
         onClick={() => handleArrowClick(-1)}
-        style={{ fontSize: "50px", cursor: "pointer" }}
+        style={{
+          fontSize: "35px",
+          color: "black",
+          backgroundColor: "white",
+          stroke: "black",
+          borderRadius: "20%",
+        }}
       />
     </Box>
     <Box
@@ -244,7 +268,13 @@ const StreetViewPartial = ({ results, originalPanorama }) => {
     >
       <MdKeyboardArrowRight
         onClick={() => handleArrowClick(1)}
-        style={{ fontSize: "50px", cursor: "pointer" }}
+        style={{
+          fontSize: "35px",
+          color: "black",
+          backgroundColor: "white",
+          stroke: "black",
+          borderRadius: "20%",
+        }}
       />
     </Box>
 
@@ -261,7 +291,7 @@ const StreetViewPartial = ({ results, originalPanorama }) => {
       <Slider
         value={currentIndex}
         min={0}
-        max={totalImages - 3}
+        max={totalImages - 2}
         step={1}
         onChange={(event, newValue) => setCurrentIndex(newValue)}
         marks
@@ -281,7 +311,7 @@ const StreetViewPartial = ({ results, originalPanorama }) => {
       />
     </Box>
 
-    <FlashOverlay show={showFlash} />
+    {showFlash && <FlashOverlay />}
   </Box>
   );
 };

@@ -18,6 +18,9 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       include: ['react-zxing'],
     },
+    preview: {
+      allowedHosts: ['ekiview.onrender.com'],
+    },
     define: {
       'process.env.VITE_API_BASE_URL': JSON.stringify(VITE_API_BASE_URL),
     },

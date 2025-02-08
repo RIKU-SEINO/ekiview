@@ -7,7 +7,7 @@ services:
   - type: web
     runtime: docker
     name: ekiview-backend
-    plan: starter
+    plan: free
     # repo: https://github.com/render-examples/webdis.git # Default: Repo containing render.yaml
     rootDir: ./backend
     # dockerCommand: ./webdis.sh # Default: Dockerfile CMD
@@ -56,7 +56,7 @@ services:
   - type: web
     runtime: docker
     name: ekiview
-    plan: starter
+    plan: free
     region: singapore
     rootDir: ./frontend
 
